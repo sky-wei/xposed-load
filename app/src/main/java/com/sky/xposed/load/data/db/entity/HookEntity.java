@@ -36,14 +36,14 @@ public class HookEntity {
 
     private String packageName;
 
-    @Convert(columnType = Long.class, converter = ListLongConverter.class)
-    private List<Long> ids;
+    @Convert(columnType = String.class, converter = ListLongConverter.class)
+    private List<Long> loadIds;
 
-    @Generated(hash = 310362817)
-    public HookEntity(Long id, String packageName, List<Long> ids) {
+    @Generated(hash = 1732699349)
+    public HookEntity(Long id, String packageName, List<Long> loadIds) {
         this.id = id;
         this.packageName = packageName;
-        this.ids = ids;
+        this.loadIds = loadIds;
     }
 
     @Generated(hash = 428386220)
@@ -66,11 +66,11 @@ public class HookEntity {
         this.packageName = packageName;
     }
 
-    public List<Long> getIds() {
-        return this.ids;
+    public List<Long> getLoadIds() {
+        return this.loadIds;
     }
 
-    public void setIds(List<Long> ids) {
-        this.ids = ids;
+    public void setLoadIds(List<Long> loadIds) {
+        this.loadIds = loadIds;
     }
 }

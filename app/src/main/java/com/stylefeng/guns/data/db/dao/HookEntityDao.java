@@ -29,10 +29,10 @@ public class HookEntityDao extends AbstractDao<HookEntity, Long> {
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property PackageName = new Property(1, String.class, "packageName", false, "PACKAGE_NAME");
-        public final static Property Ids = new Property(2, Long.class, "ids", false, "IDS");
+        public final static Property LoadIds = new Property(2, String.class, "loadIds", false, "LOAD_IDS");
     }
 
-    private final ListLongConverter idsConverter = new ListLongConverter();
+    private final ListLongConverter loadIdsConverter = new ListLongConverter();
 
     public HookEntityDao(DaoConfig config) {
         super(config);
@@ -48,7 +48,7 @@ public class HookEntityDao extends AbstractDao<HookEntity, Long> {
         db.execSQL("CREATE TABLE " + constraint + "\"HOOK_ENTITY\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"PACKAGE_NAME\" TEXT," + // 1: packageName
-                "\"IDS\" INTEGER);"); // 2: ids
+                "\"LOAD_IDS\" TEXT);"); // 2: loadIds
     }
 
     /** Drops the underlying database table. */
@@ -71,9 +71,9 @@ public class HookEntityDao extends AbstractDao<HookEntity, Long> {
             stmt.bindString(2, packageName);
         }
  
-        List ids = entity.getIds();
-        if (ids != null) {
-            stmt.bindLong(3, idsConverter.convertToDatabaseValue(ids));
+        List loadIds = entity.getLoadIds();
+        if (loadIds != null) {
+            stmt.bindString(3, loadIdsConverter.convertToDatabaseValue(loadIds));
         }
     }
 
@@ -91,9 +91,9 @@ public class HookEntityDao extends AbstractDao<HookEntity, Long> {
             stmt.bindString(2, packageName);
         }
  
-        List ids = entity.getIds();
-        if (ids != null) {
-            stmt.bindLong(3, idsConverter.convertToDatabaseValue(ids));
+        List loadIds = entity.getLoadIds();
+        if (loadIds != null) {
+            stmt.bindString(3, loadIdsConverter.convertToDatabaseValue(loadIds));
         }
     }
 
@@ -107,7 +107,7 @@ public class HookEntityDao extends AbstractDao<HookEntity, Long> {
         HookEntity entity = new HookEntity( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // packageName
-            cursor.isNull(offset + 2) ? null : idsConverter.convertToEntityProperty(cursor.getLong(offset + 2)) // ids
+            cursor.isNull(offset + 2) ? null : loadIdsConverter.convertToEntityProperty(cursor.getString(offset + 2)) // loadIds
         );
         return entity;
     }
@@ -116,7 +116,7 @@ public class HookEntityDao extends AbstractDao<HookEntity, Long> {
     public void readEntity(Cursor cursor, HookEntity entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setPackageName(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setIds(cursor.isNull(offset + 2) ? null : idsConverter.convertToEntityProperty(cursor.getLong(offset + 2)));
+        entity.setLoadIds(cursor.isNull(offset + 2) ? null : loadIdsConverter.convertToEntityProperty(cursor.getString(offset + 2)));
      }
     
     @Override

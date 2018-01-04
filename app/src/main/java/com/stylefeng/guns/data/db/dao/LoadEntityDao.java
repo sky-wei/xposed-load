@@ -28,7 +28,7 @@ public class LoadEntityDao extends AbstractDao<LoadEntity, Long> {
      */
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
-        public final static Property PackageNames = new Property(1, Long.class, "packageNames", false, "PACKAGE_NAMES");
+        public final static Property PackageNames = new Property(1, String.class, "packageNames", false, "PACKAGE_NAMES");
         public final static Property Main = new Property(2, String.class, "main", false, "MAIN");
         public final static Property Status = new Property(3, int.class, "status", false, "STATUS");
     }
@@ -48,7 +48,7 @@ public class LoadEntityDao extends AbstractDao<LoadEntity, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"LOAD_ENTITY\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
-                "\"PACKAGE_NAMES\" INTEGER," + // 1: packageNames
+                "\"PACKAGE_NAMES\" TEXT," + // 1: packageNames
                 "\"MAIN\" TEXT," + // 2: main
                 "\"STATUS\" INTEGER NOT NULL );"); // 3: status
     }
@@ -70,7 +70,7 @@ public class LoadEntityDao extends AbstractDao<LoadEntity, Long> {
  
         List packageNames = entity.getPackageNames();
         if (packageNames != null) {
-            stmt.bindLong(2, packageNamesConverter.convertToDatabaseValue(packageNames));
+            stmt.bindString(2, packageNamesConverter.convertToDatabaseValue(packageNames));
         }
  
         String main = entity.getMain();
@@ -91,7 +91,7 @@ public class LoadEntityDao extends AbstractDao<LoadEntity, Long> {
  
         List packageNames = entity.getPackageNames();
         if (packageNames != null) {
-            stmt.bindLong(2, packageNamesConverter.convertToDatabaseValue(packageNames));
+            stmt.bindString(2, packageNamesConverter.convertToDatabaseValue(packageNames));
         }
  
         String main = entity.getMain();
@@ -110,7 +110,7 @@ public class LoadEntityDao extends AbstractDao<LoadEntity, Long> {
     public LoadEntity readEntity(Cursor cursor, int offset) {
         LoadEntity entity = new LoadEntity( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
-            cursor.isNull(offset + 1) ? null : packageNamesConverter.convertToEntityProperty(cursor.getLong(offset + 1)), // packageNames
+            cursor.isNull(offset + 1) ? null : packageNamesConverter.convertToEntityProperty(cursor.getString(offset + 1)), // packageNames
             cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // main
             cursor.getInt(offset + 3) // status
         );
@@ -120,7 +120,7 @@ public class LoadEntityDao extends AbstractDao<LoadEntity, Long> {
     @Override
     public void readEntity(Cursor cursor, LoadEntity entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setPackageNames(cursor.isNull(offset + 1) ? null : packageNamesConverter.convertToEntityProperty(cursor.getLong(offset + 1)));
+        entity.setPackageNames(cursor.isNull(offset + 1) ? null : packageNamesConverter.convertToEntityProperty(cursor.getString(offset + 1)));
         entity.setMain(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
         entity.setStatus(cursor.getInt(offset + 3));
      }

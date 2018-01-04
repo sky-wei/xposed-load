@@ -34,7 +34,7 @@ public class LoadEntity {
     @Id(autoincrement = true)
     private Long id;
 
-    @Convert(columnType = Long.class, converter = ListStringConverter.class)
+    @Convert(columnType = String.class, converter = ListStringConverter.class)
     private List<String> packageNames;
 
     private String main;

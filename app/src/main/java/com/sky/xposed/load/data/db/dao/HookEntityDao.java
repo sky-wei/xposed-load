@@ -1,4 +1,4 @@
-package com.stylefeng.guns.data.db.dao;
+package com.sky.xposed.load.data.db.dao;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;

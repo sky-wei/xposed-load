@@ -1,4 +1,4 @@
-package com.stylefeng.guns.data.db.dao;
+package com.sky.xposed.load.data.db.dao;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -21,14 +21,14 @@ public class DaoMaster extends AbstractDaoMaster {
 
     /** Creates underlying database table using DAOs. */
     public static void createAllTables(Database db, boolean ifNotExists) {
-        HookEntityDao.createTable(db, ifNotExists);
         LoadEntityDao.createTable(db, ifNotExists);
+        HookEntityDao.createTable(db, ifNotExists);
     }
 
     /** Drops underlying database table using DAOs. */
     public static void dropAllTables(Database db, boolean ifExists) {
-        HookEntityDao.dropTable(db, ifExists);
         LoadEntityDao.dropTable(db, ifExists);
+        HookEntityDao.dropTable(db, ifExists);
     }
 
     /**
@@ -47,8 +47,8 @@ public class DaoMaster extends AbstractDaoMaster {
 
     public DaoMaster(Database db) {
         super(db, SCHEMA_VERSION);
-        registerDaoClass(HookEntityDao.class);
         registerDaoClass(LoadEntityDao.class);
+        registerDaoClass(HookEntityDao.class);
     }
 
     public DaoSession newSession() {

@@ -23,7 +23,7 @@ android {
 
 greendao {
     schemaVersion 1
-    daoPackage 'com.stylefeng.guns.data.db.dao'
+    daoPackage 'com.sky.xposed.load.data.db.dao'
     targetGenDir 'src/main/java'
 }
 

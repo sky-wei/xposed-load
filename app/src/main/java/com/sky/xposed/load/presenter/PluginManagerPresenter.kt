@@ -14,20 +14,26 @@
  * limitations under the License.
  */
 
-package com.sky.xposed.load
+package com.sky.xposed.load.presenter
 
-import android.app.Application
+import com.sky.xposed.load.contract.PluginManagerContract
 import com.sky.xposed.load.data.local.PluginManager
 
 /**
- * Created by sky on 17-12-27.
+ * Created by sky on 18-1-5.
  */
-class VApp : Application() {
+class PluginManagerPresenter(private val pluginManager: PluginManager, private val view: PluginManagerContract.View)
+    : AbstractPresenter(), PluginManagerContract.Presenter {
 
-    override fun onCreate() {
-        super.onCreate()
+    override fun loadPlugins() {
 
-        // 初始化
-        PluginManager.INSTANCE.initialize(this)
+        ioToMain(pluginManager.loadPlugins())
+                .subscribe({
+                    view.cancelLoading()
+                    view.onLoadPlugins(it)
+                }, {
+                    view.cancelLoading()
+                    view.onLoadPluginsFailed(it?.message?:"")
+                })
     }
 }

@@ -16,18 +16,33 @@
 
 package com.sky.xposed.load
 
-import android.app.Application
-import com.sky.xposed.load.data.local.PluginManager
-
 /**
- * Created by sky on 17-12-27.
+ * Created by sky on 18-1-5.
  */
-class VApp : Application() {
+object Constant {
 
-    override fun onCreate() {
-        super.onCreate()
+    object Key {
 
-        // 初始化
-        PluginManager.INSTANCE.initialize(this)
+        val ARGS = "args"
+
+        val TYPE = "type"
+
+        val MODE = "mode"
+
+        val ACTION = "action"
+
+        val TITLE = "title"
+
+        val NAME = "name"
+
+        val PHONE = "phone"
+
+        val ANY = "any"
+
+        val ID = "id"
+
+        val F_NAME = "fName"
+
+        val SUPPORT_FRAGMENT = "supportFragment"
     }
 }

@@ -19,4 +19,11 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="colorText">#050505</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="grey">#D5D5D5</color>
+    <color name="transparent">#00000000</color>
+    <color name="background">#F4F4F4</color>
 </resources>

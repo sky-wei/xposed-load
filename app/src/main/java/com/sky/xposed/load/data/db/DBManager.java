@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.sky.xposed.load.data.db.dao.DaoMaster;
 import com.sky.xposed.load.data.db.dao.DaoSession;
 import com.sky.xposed.load.data.db.dao.HookEntityDao;
-import com.sky.xposed.load.data.db.dao.LoadEntityDao;
+import com.sky.xposed.load.data.db.dao.PluginEntityDao;
 
 import org.greenrobot.greendao.database.Database;
 
@@ -63,8 +63,8 @@ public class DBManager {
         return mDaoSession.getHookEntityDao();
     }
 
-    public LoadEntityDao getLoadEntityDao() {
-        return mDaoSession.getLoadEntityDao();
+    public PluginEntityDao getPluginEntityDao() {
+        return mDaoSession.getPluginEntityDao();
     }
 
     private final class SkyOpenHelper extends DaoMaster.OpenHelper {

@@ -29,48 +29,69 @@ import org.greenrobot.greendao.annotation.Generated;
  * Created by sky on 18-1-4.
  */
 @Entity
-public class LoadEntity {
+public class PluginEntity {
 
     @Id(autoincrement = true)
     private Long id;
 
-    @Convert(columnType = String.class, converter = ListStringConverter.class)
-    private List<String> packageNames;
-
+    private String packageName;
     private String main;
     private int status;
-    @Generated(hash = 1809032816)
-    public LoadEntity(Long id, List<String> packageNames, String main, int status) {
+
+    @Convert(columnType = String.class, converter = ListStringConverter.class)
+    private List<String> hookPackageNames;
+
+    @Generated(hash = 1084132996)
+    public PluginEntity(Long id, String packageName, String main, int status,
+            List<String> hookPackageNames) {
         this.id = id;
-        this.packageNames = packageNames;
+        this.packageName = packageName;
         this.main = main;
         this.status = status;
+        this.hookPackageNames = hookPackageNames;
     }
-    @Generated(hash = 1204654049)
-    public LoadEntity() {
+
+    @Generated(hash = 18870672)
+    public PluginEntity() {
     }
+
     public Long getId() {
         return this.id;
     }
+
     public void setId(Long id) {
         this.id = id;
     }
-    public List<String> getPackageNames() {
-        return this.packageNames;
+
+    public String getPackageName() {
+        return this.packageName;
     }
-    public void setPackageNames(List<String> packageNames) {
-        this.packageNames = packageNames;
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
     }
+
     public String getMain() {
         return this.main;
     }
+
     public void setMain(String main) {
         this.main = main;
     }
+
     public int getStatus() {
         return this.status;
     }
+
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public List<String> getHookPackageNames() {
+        return this.hookPackageNames;
+    }
+
+    public void setHookPackageNames(List<String> hookPackageNames) {
+        this.hookPackageNames = hookPackageNames;
     }
 }

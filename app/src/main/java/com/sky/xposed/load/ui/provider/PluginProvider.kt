@@ -24,7 +24,7 @@ import android.net.Uri
 /**
  * Created by sky on 18-1-2.
  */
-class LoadProvider : ContentProvider() {
+class PluginProvider : ContentProvider() {
 
     override fun insert(uri: Uri?, values: ContentValues?): Uri? {
         return null

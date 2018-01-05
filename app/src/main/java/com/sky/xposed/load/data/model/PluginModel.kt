@@ -14,20 +14,11 @@
  * limitations under the License.
  */
 
-package com.sky.xposed.load
-
-import android.app.Application
-import com.sky.xposed.load.data.local.PluginManager
+package com.sky.xposed.load.data.model
 
 /**
- * Created by sky on 17-12-27.
+ * Created by sky on 18-1-5.
  */
-class VApp : Application() {
-
-    override fun onCreate() {
-        super.onCreate()
-
-        // 初始化
-        PluginManager.INSTANCE.initialize(this)
-    }
-}
+data class PluginModel(
+        val id: Long, val packageName: String, val main: String,
+        val status: Int, val packageNames: List<String>)

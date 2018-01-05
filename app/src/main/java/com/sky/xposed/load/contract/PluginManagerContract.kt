@@ -14,20 +14,26 @@
  * limitations under the License.
  */
 
-package com.sky.xposed.load
+package com.sky.xposed.load.contract
 
-import android.app.Application
-import com.sky.xposed.load.data.local.PluginManager
+import com.sky.android.cherry.base.BasePresenter
+import com.sky.android.cherry.base.BaseView
+import com.sky.xposed.load.data.model.PluginModel
 
 /**
- * Created by sky on 17-12-27.
+ * Created by sky on 18-1-5.
  */
-class VApp : Application() {
+interface PluginManagerContract {
 
-    override fun onCreate() {
-        super.onCreate()
+    interface View : BaseView {
 
-        // 初始化
-        PluginManager.INSTANCE.initialize(this)
+        fun onLoadPlugins(models: List<PluginModel>)
+
+        fun onLoadPluginsFailed(msg: String)
+    }
+
+    interface Presenter : BasePresenter {
+
+        fun loadPlugins()
     }
 }

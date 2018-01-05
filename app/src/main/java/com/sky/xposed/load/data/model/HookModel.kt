@@ -14,16 +14,9 @@
  * limitations under the License.
  */
 
-package com.sky.xposed.load.ui.activity
+package com.sky.xposed.load.data.model
 
-import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import com.sky.xposed.load.R
-
-class MainActivity : AppCompatActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-    }
-}
+/**
+ * Created by sky on 18-1-5.
+ */
+data class HookModel(val id: Long, val packageName: String, val loadIds: List<Long>)

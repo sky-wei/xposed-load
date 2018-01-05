@@ -14,20 +14,33 @@
  * limitations under the License.
  */
 
-package com.sky.xposed.load
+package com.sky.xposed.load.presenter
 
-import android.app.Application
-import com.sky.xposed.load.data.local.PluginManager
+import com.sky.android.cherry.base.BasePresenter
+import rx.Observable
+import rx.android.schedulers.AndroidSchedulers
+import rx.schedulers.Schedulers
 
 /**
- * Created by sky on 17-12-27.
+ * Created by sky on 18-1-5.
  */
-class VApp : Application() {
+abstract class AbstractPresenter : BasePresenter {
 
-    override fun onCreate() {
-        super.onCreate()
+    override fun resume() {
 
-        // 初始化
-        PluginManager.INSTANCE.initialize(this)
+    }
+
+    override fun pause() {
+
+    }
+
+    override fun destroy() {
+
+    }
+
+    fun <T> ioToMain(observable: Observable<T>): Observable<T> {
+        return observable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
     }
 }

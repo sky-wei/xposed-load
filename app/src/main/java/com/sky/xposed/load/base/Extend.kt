@@ -14,20 +14,28 @@
  * limitations under the License.
  */
 
-package com.sky.xposed.load
+package com.sky.android.cherry.base
 
-import android.app.Application
-import com.sky.xposed.load.data.local.PluginManager
+import android.content.Intent
+import android.text.TextUtils
+import android.widget.EditText
 
 /**
- * Created by sky on 17-12-27.
+ * Created by sky on 17-9-24.
  */
-class VApp : Application() {
 
-    override fun onCreate() {
-        super.onCreate()
+fun Any?.toExtString(): String {
+    return this?.toString() ?: ""
+}
 
-        // 初始化
-        PluginManager.INSTANCE.initialize(this)
-    }
+fun String.toPriceString(): String {
+    return if (TextUtils.isEmpty(this)) "0" else this
+}
+
+fun EditText.getTextString(): String {
+    return this.text.toString()
+}
+
+fun Intent.getString(name: String): String {
+    return this.getStringExtra(name).toExtString()
 }

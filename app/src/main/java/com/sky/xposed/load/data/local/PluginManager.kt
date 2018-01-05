@@ -17,6 +17,13 @@
 package com.sky.xposed.load.data.local
 
 import android.content.Context
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
+import android.content.res.AssetManager
+import com.sky.xposed.load.Constant
+import com.sky.xposed.load.data.db.DBManager
+import com.sky.xposed.load.data.db.entity.PluginEntity
+import com.sky.xposed.load.data.local.info.PluginInfo
 import com.sky.xposed.load.data.model.PluginModel
 import com.sky.xposed.load.util.Alog
 import rx.Observable
@@ -42,6 +49,7 @@ class PluginManager private constructor() {
 
         if (mInitialize) return
 
+        mInitialize = true
         mContext = context
     }
 
@@ -60,7 +68,90 @@ class PluginManager private constructor() {
 
     fun loadLocalPlugins(filter: (packageName: String) -> Boolean): List<PluginModel> {
 
-        return listOf()
+        val pluginModelList = ArrayList<PluginModel>()
+
+        val pluginInfoList = loadLocalPluginInfo(filter)
+
+        if (pluginInfoList.isEmpty()) return listOf()
+
+        val dbManager = DBManager.getInstance(mContext)
+        val pluginEntityDao = dbManager.pluginEntityDao
+        val pluginEntityList = dbManager.pluginEntityDao.loadAll()
+
+        pluginInfoList.forEach {
+
+            val info = it
+            var entity = pluginEntityList.firstOrNull { info.packageName == it.packageName }
+
+            if (entity == null) {
+
+                // 添加到数据库中
+                entity = PluginEntity().apply {
+                    this.packageName = info.packageName
+                    this.hookPackageNames = listOf()
+                    this.main = info.main
+                    this.status = Constant.Status.DISABLED
+                }
+
+                // 添加到数据库中
+                pluginEntityDao.insert(entity)
+            }
+
+            if (entity.main != it.main) {
+                // 更新信息
+                entity.main = it.main
+                pluginEntityDao.update(entity)
+            }
+        }
+
+        return pluginModelList
+    }
+
+    fun loadLocalPluginInfo(filter: (packageName: String) -> Boolean): List<PluginInfo> {
+
+        val pluginList = ArrayList<PluginInfo>()
+
+        val packageList = mContext.packageManager
+                .getInstalledPackages(PackageManager.GET_META_DATA)
+
+        packageList.forEach {
+
+            val info = it.applicationInfo
+
+            if (info != null && info.enabled
+                    && info.metaData != null
+                    && info.metaData.containsKey("xposedmodule")
+                    && !filter.invoke(info.packageName)) {
+
+                // 添加到列表中
+                pluginList.add(newPluginInfo(mContext.packageManager, it))
+            }
+        }
+
+        return pluginList
+    }
+
+    fun newPluginInfo(packageManager: PackageManager, packageInfo: PackageInfo): PluginInfo {
+
+
+        val applicationInfo = packageInfo.applicationInfo
+
+        val packageName = packageInfo.packageName
+        val versionName = packageInfo.versionName
+        val versionCode = packageInfo.versionCode
+        val label = applicationInfo.loadLabel(packageManager).toString()
+        val image = applicationInfo.loadIcon(packageManager)
+        val main = getPluginMain(packageInfo)
+
+        return PluginInfo(label, packageName, versionName, versionCode, image, main)
+    }
+
+    fun getPluginMain(packageInfo: PackageInfo): String {
+
+        val applicationInfo = packageInfo.applicationInfo
+        applicationInfo.publicSourceDir
+
+        return ""
     }
 
     fun <T> onUnsafeCreate(next: () -> T): Observable<T> {

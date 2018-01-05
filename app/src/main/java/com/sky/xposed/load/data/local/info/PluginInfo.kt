@@ -14,42 +14,13 @@
  * limitations under the License.
  */
 
-package com.sky.xposed.load
+package com.sky.xposed.load.data.local.info
+
+import android.graphics.drawable.Drawable
 
 /**
  * Created by sky on 18-1-5.
  */
-object Constant {
-
-    object Key {
-
-        val ARGS = "args"
-
-        val TYPE = "type"
-
-        val MODE = "mode"
-
-        val ACTION = "action"
-
-        val TITLE = "title"
-
-        val NAME = "name"
-
-        val PHONE = "phone"
-
-        val ANY = "any"
-
-        val ID = "id"
-
-        val F_NAME = "fName"
-
-        val SUPPORT_FRAGMENT = "supportFragment"
-    }
-
-    object Status {
-
-        val DISABLED = 0x00
-
-        val ENABLED = 0x01
-    }
-}
+data class PluginInfo(val label: String, val packageName: String,
+                      val versionName: String, val versionCode: Int,
+                      val image: Drawable, val main: String)

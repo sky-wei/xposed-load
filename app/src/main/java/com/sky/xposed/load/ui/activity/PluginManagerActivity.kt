@@ -17,14 +17,19 @@
 package com.sky.xposed.load.ui.activity
 
 import android.content.Intent
+import android.os.Bundle
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.Toolbar
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
+import android.widget.CheckBox
 import butterknife.BindView
 import com.sky.android.common.interfaces.OnItemEventListener
 import com.sky.android.common.utils.DisplayUtils
+import com.sky.xposed.load.Constant
 import com.sky.xposed.load.R
 import com.sky.xposed.load.contract.PluginManagerContract
 import com.sky.xposed.load.data.local.PluginManager
@@ -33,10 +38,19 @@ import com.sky.xposed.load.presenter.PluginManagerPresenter
 import com.sky.xposed.load.ui.adapter.PluginListAdapter
 import com.sky.xposed.load.ui.adapter.SpacesItemDecoration
 import com.sky.xposed.load.ui.base.BaseActivity
+import com.sky.xposed.load.ui.fragment.AboutFragment
+import com.sky.xposed.load.ui.fragment.ChooseAppFragment
 import com.sky.xposed.load.ui.helper.RecyclerHelper
+import com.sky.xposed.load.ui.util.ActivityUtil
+import java.io.Serializable
 
 class PluginManagerActivity : BaseActivity(), OnItemEventListener,
         RecyclerHelper.OnCallback, PluginManagerContract.View {
+
+    companion object {
+
+        val CHOOSE_APP = 0x01
+    }
 
     @BindView(R.id.toolbar)
     lateinit var toolbar: Toolbar
@@ -80,6 +94,26 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
         mPluginManagerPresenter.loadPlugins()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.activity_plugin_manager, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        when(item.itemId) {
+            R.id.menu_settings -> {
+
+            }
+            R.id.menu_about -> {
+                // 进入关于界面
+                ActivityUtil.startCommonActivity(
+                        this, getString(R.string.about), AboutFragment::class.java)
+            }
+        }
+        return true
+    }
+
     override fun showLoading() {
     }
 
@@ -88,6 +122,32 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
     }
 
     override fun onItemEvent(event: Int, view: View, position: Int, vararg args: Any?) {
+
+        when(event) {
+            Constant.EventId.LONG_CLICK -> {
+
+            }
+            Constant.EventId.CLICK -> {
+
+            }
+            Constant.EventId.SELECT -> {
+
+                val cbSelect = view as CheckBox
+                val item = mPluginListAdapter.getItem(position)
+
+                if (cbSelect.isChecked) {
+
+                    val args = Bundle().apply {
+                        putSerializable(Constant.Key.ANY, item.packageNames as Serializable)
+                    }
+
+                    // 选择，需要跳转到
+                    ActivityUtil.startCommonActivityForResult(this,
+                            getString(R.string.choose_app), ChooseAppFragment::class.java, args, CHOOSE_APP)
+                    return
+                }
+            }
+        }
     }
 
     override fun onRefresh() {

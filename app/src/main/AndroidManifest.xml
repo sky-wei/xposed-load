@@ -29,6 +29,7 @@
         android:name=".VApp"
         android:theme="@style/AppTheme">
         <activity android:name=".ui.activity.PluginManagerActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -48,6 +49,12 @@
                 android:name="xposedminversion"
                 android:value="54"/>
         </activity>
+
+        <activity android:name=".ui.activity.CommonActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden"
+            android:theme="@style/AppTheme.NoActionBar"
+            />
     </application>
 
 </manifest>

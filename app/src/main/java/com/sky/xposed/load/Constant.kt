@@ -52,4 +52,13 @@ object Constant {
 
         val ENABLED = 0x01
     }
+
+    object EventId {
+
+        val CLICK = 0x01
+
+        val LONG_CLICK = 0x02
+
+        val SELECT = 0x03
+    }
 }

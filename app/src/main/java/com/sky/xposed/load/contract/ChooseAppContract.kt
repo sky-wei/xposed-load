@@ -14,13 +14,32 @@
  * limitations under the License.
  */
 
-package com.sky.xposed.load.data.model
+package com.sky.xposed.load.contract
 
-import com.sky.xposed.load.data.local.info.PluginInfo
+import com.sky.android.cherry.base.BasePresenter
+import com.sky.android.cherry.base.BaseView
+import com.sky.xposed.load.data.model.AppModel
 
 /**
- * Created by sky on 18-1-5.
+ * Created by sky on 18-1-7.
  */
-data class PluginModel(
-        val id: Long, var status: Int, var packageNames: List<String>,
-        val base: PluginInfo)
+interface ChooseAppContract {
+
+    interface View : BaseView {
+
+        fun onLoadApps(models: List<AppModel>)
+
+        fun onLoadAppsFailed(msg: String)
+
+        fun onSearchApp(models: List<AppModel>)
+
+        fun onSearchAppFailed(msg: String)
+    }
+
+    interface Presenter : BasePresenter {
+
+        fun loadApps(filter: Int)
+
+        fun searchApp(keyword: String)
+    }
+}

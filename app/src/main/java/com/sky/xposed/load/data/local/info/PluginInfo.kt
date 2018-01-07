@@ -23,4 +23,4 @@ import android.graphics.drawable.Drawable
  */
 data class PluginInfo(val label: String, val packageName: String,
                       val versionName: String, val versionCode: Int,
-                      val image: Drawable, val main: String)
+                      val image: Drawable, var main: String)

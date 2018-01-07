@@ -16,11 +16,11 @@
 
 package com.sky.xposed.load.data.model
 
-import com.sky.xposed.load.data.local.info.PluginInfo
+import android.graphics.drawable.Drawable
 
 /**
- * Created by sky on 18-1-5.
+ * Created by sky on 18-1-7.
  */
-data class PluginModel(
-        val id: Long, var status: Int, var packageNames: List<String>,
-        val base: PluginInfo)
+data class AppModel(val label: String, val packageName: String,
+                    val versionName: String, val versionCode: Int,
+                    val image: Drawable)

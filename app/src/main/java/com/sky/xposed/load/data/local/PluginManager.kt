@@ -19,11 +19,11 @@ package com.sky.xposed.load.data.local
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import android.content.res.AssetManager
 import com.sky.xposed.load.Constant
 import com.sky.xposed.load.data.db.DBManager
 import com.sky.xposed.load.data.db.entity.PluginEntity
 import com.sky.xposed.load.data.local.info.PluginInfo
+import com.sky.xposed.load.data.model.AppModel
 import com.sky.xposed.load.data.model.PluginModel
 import com.sky.xposed.load.util.Alog
 import rx.Observable
@@ -66,6 +66,29 @@ class PluginManager private constructor() {
         return onUnsafeCreate{ loadLocalPlugins(filter) }
     }
 
+    fun loadApps(): Observable<List<AppModel>> {
+        return onUnsafeCreate{ loadLocalApps() }
+    }
+
+    fun loadLocalApps(): List<AppModel> {
+
+        val appList = ArrayList<AppModel>()
+
+        val packageList = mContext.packageManager.getInstalledPackages(0)
+
+        packageList.forEach {
+
+            val info = it.applicationInfo
+
+            if (info != null && info.enabled) {
+                // 添加到列表中
+                appList.add(newAppInfo(mContext.packageManager, it))
+            }
+        }
+
+        return appList
+    }
+
     fun loadLocalPlugins(filter: (packageName: String) -> Boolean): List<PluginModel> {
 
         val pluginModelList = ArrayList<PluginModel>()
@@ -76,7 +99,7 @@ class PluginManager private constructor() {
 
         val dbManager = DBManager.getInstance(mContext)
         val pluginEntityDao = dbManager.pluginEntityDao
-        val pluginEntityList = dbManager.pluginEntityDao.loadAll()
+        val pluginEntityList = pluginEntityDao.loadAll()
 
         pluginInfoList.forEach {
 
@@ -84,7 +107,6 @@ class PluginManager private constructor() {
             var entity = pluginEntityList.firstOrNull { info.packageName == it.packageName }
 
             if (entity == null) {
-
                 // 添加到数据库中
                 entity = PluginEntity().apply {
                     this.packageName = info.packageName
@@ -102,6 +124,11 @@ class PluginManager private constructor() {
                 entity.main = it.main
                 pluginEntityDao.update(entity)
             }
+
+            // 添加到列表中
+            pluginModelList.add(PluginModel(
+                    entity.id, entity.status,
+                    transformNullList(entity.hookPackageNames), it))
         }
 
         return pluginModelList
@@ -146,6 +173,20 @@ class PluginManager private constructor() {
         return PluginInfo(label, packageName, versionName, versionCode, image, main)
     }
 
+    fun newAppInfo(packageManager: PackageManager, packageInfo: PackageInfo): AppModel {
+
+
+        val applicationInfo = packageInfo.applicationInfo
+
+        val packageName = packageInfo.packageName
+        val versionName = packageInfo.versionName
+        val versionCode = packageInfo.versionCode
+        val label = applicationInfo.loadLabel(packageManager).toString()
+        val image = applicationInfo.loadIcon(packageManager)
+
+        return AppModel(label, packageName, versionName, versionCode, image)
+    }
+
     fun getPluginMain(packageInfo: PackageInfo): String {
 
         val applicationInfo = packageInfo.applicationInfo
@@ -166,5 +207,9 @@ class PluginManager private constructor() {
                 it.onError(tr)
             }
         }
+    }
+
+    fun <T> transformNullList(dto: List<T>?): List<T> {
+        return dto ?: listOf()
     }
 }

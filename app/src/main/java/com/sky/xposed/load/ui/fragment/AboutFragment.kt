@@ -14,13 +14,24 @@
  * limitations under the License.
  */
 
-package com.sky.xposed.load.data.model
+package com.sky.xposed.load.ui.fragment
 
-import com.sky.xposed.load.data.local.info.PluginInfo
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import com.sky.xposed.load.R
+import com.sky.xposed.load.ui.base.BaseFragment
 
 /**
- * Created by sky on 18-1-5.
+ * Created by sky on 18-1-7.
  */
-data class PluginModel(
-        val id: Long, var status: Int, var packageNames: List<String>,
-        val base: PluginInfo)
+class AboutFragment : BaseFragment() {
+
+    override fun createView(inflater: LayoutInflater, container: ViewGroup?): View {
+        return inflater.inflate(R.layout.fragment_about, container, false)
+    }
+
+    override fun initView(view: View, args: Bundle?) {
+    }
+}

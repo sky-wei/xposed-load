@@ -18,6 +18,7 @@ package com.sky.xposed.load
 
 import android.app.Application
 import com.sky.xposed.load.data.local.PluginManager
+import com.sky.xposed.load.ui.util.VToast
 
 /**
  * Created by sky on 17-12-27.
@@ -28,6 +29,7 @@ class VApp : Application() {
         super.onCreate()
 
         // 初始化
+        VToast.instance.init(this)
         PluginManager.INSTANCE.initialize(this)
     }
 }

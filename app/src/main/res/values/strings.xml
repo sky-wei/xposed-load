@@ -15,8 +15,11 @@
   -->
 
 <resources>
-    <string name="app_name">XposedLoad</string>
+    <string name="app_name">Xposed Load</string>
     <string name="settings">设置</string>
     <string name="about">关于</string>
     <string name="choose_app">选择应用</string>
+    <string name="version_x">版本 v%s</string>
+    <string name="mail">邮箱：jingcai.wei@163.com</string>
+    <string name="source">项目地址：<u>https://github.com/jingcai-wei</u></string>
 </resources>

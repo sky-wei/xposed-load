@@ -38,16 +38,12 @@ class Main : IXposedHookLoadPackage, IXposedHookInitPackageResources {
     override fun handleLoadPackage(param: XC_LoadPackage.LoadPackageParam) {
 
         try {
-            val startTime = System.currentTimeMillis()
-
             val packageName = param.packageName
             val context = getSystemContext()
 
-            Alog.d(">>>> PackageName: " + packageName)
+            Alog.d(">>>> PackageName: $packageName")
 
             handleLoadPackage(context, packageName, param)
-
-            Alog.d(">>>>> LoadTime " + (System.currentTimeMillis() - startTime))
         } catch (tr: Throwable) {
             Alog.e("处理异常", tr)
         }
@@ -58,7 +54,7 @@ class Main : IXposedHookLoadPackage, IXposedHookInitPackageResources {
     }
 
     override fun handleInitPackageResources(resparam: XC_InitPackageResources.InitPackageResourcesParam) {
-
+        // 不需要处理
     }
 
     private fun handleLoadPackage(context: Context, packageName: String, param: XC_LoadPackage.LoadPackageParam) {
@@ -74,6 +70,7 @@ class Main : IXposedHookLoadPackage, IXposedHookInitPackageResources {
 
             val list = JSON.parseArray(data, PluginEntity::class.java)
 
+            // 加载所有关联的插件
             list.forEach { handlerLoadPackage(context, param, it) }
         }
     }
@@ -87,11 +84,12 @@ class Main : IXposedHookLoadPackage, IXposedHookInitPackageResources {
         }
 
         try {
-            Alog.d(" >>> 正在加载: ${plugin.packageName}")
+            Alog.d(">>> Loading: ${plugin.packageName}")
 
             // 加载Dex
             val classLoader = loadClassLoader(context, plugin.packageName)
 
+            // 加载相应类的入口，并调用
             val mainClass = classLoader.loadClass(plugin.main)
             val mainAny = mainClass.newInstance()
 
@@ -102,6 +100,9 @@ class Main : IXposedHookLoadPackage, IXposedHookInitPackageResources {
         }
     }
 
+    /**
+     * 加载指定的包的ClassLoader并返回
+     */
     private fun loadClassLoader(context: Context, packageName: String): ClassLoader {
 
         val packageInfo = context.packageManager.getPackageInfo(packageName, 0)

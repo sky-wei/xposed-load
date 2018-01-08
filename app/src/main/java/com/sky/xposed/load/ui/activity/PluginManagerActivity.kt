@@ -17,8 +17,8 @@
 package com.sky.xposed.load.ui.activity
 
 import android.app.Activity
+import android.content.ComponentName
 import android.content.Intent
-import android.os.Bundle
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -44,10 +44,8 @@ import com.sky.xposed.load.ui.fragment.AboutFragment
 import com.sky.xposed.load.ui.fragment.ChooseAppFragment
 import com.sky.xposed.load.ui.helper.RecyclerHelper
 import com.sky.xposed.load.ui.util.ActivityUtil
-import java.io.Serializable
-import android.net.Uri.fromParts
-import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-
+import com.sky.xposed.load.util.Alog
+import com.sky.xposed.load.util.SystemUtil
 
 
 class PluginManagerActivity : BaseActivity(), OnItemEventListener,
@@ -56,6 +54,8 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
     companion object {
 
         val CHOOSE_APP = 0x01
+
+        val MODULE_SETTINGS = "de.robv.android.xposed.category.MODULE_SETTINGS"
     }
 
     @BindView(R.id.toolbar)
@@ -110,7 +110,6 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
 
         when(item.itemId) {
             R.id.menu_settings -> {
-
             }
             R.id.menu_about -> {
                 // 进入关于界面
@@ -161,15 +160,15 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
 
     override fun onItemEvent(event: Int, view: View, position: Int, vararg args: Any?) {
 
+        val vItem = mPluginListAdapter.getItem(position)
+
         when(event) {
             Constant.EventId.LONG_CLICK -> {
-
-                val vItem = mPluginListAdapter.getItem(position)
-
+                // 处理长按事件
                 if (vItem.status == Constant.Status.DISABLED) return
 
                 ChooseDialog.build(getContext()){
-                    stringItems { arrayOf("Hook应用信息") }
+                    stringItems { arrayOf("Hook应用信息", "关闭关联应用") }
                     onChooseListener { object : ChooseDialog.OnChooseListener{
                         override fun onChoose(position: Int, item: ChooseDialog.ChooseItem) {
                             when(position) {
@@ -177,35 +176,34 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
                                     // 显示提示框
                                     showChooseAppDialog(vItem.packageNames)
                                 }
+                                1 -> {
+                                    // 关闭关联的包
+                                    closeHookPackages(vItem)
+                                }
                             }
                         }
                     }}
                 }.show()
             }
             Constant.EventId.CLICK -> {
-
+                // 打开插件设置界面
+                openXposedSettings(vItem)
             }
             Constant.EventId.SELECT -> {
-
+                // 处理选择事件
                 mCurPosition = position
                 val cbSelect = view as CheckBox
-                val item = mPluginListAdapter.getItem(position)
 
                 if (cbSelect.isChecked) {
-
-                    val args = Bundle().apply {
-                        putSerializable(Constant.Key.ANY, item.packageNames as Serializable)
-                    }
-
                     // 选择，需要跳转到
                     ActivityUtil.startCommonActivityForResult(this,
-                            getString(R.string.choose_app), ChooseAppFragment::class.java, args, CHOOSE_APP)
+                            getString(R.string.choose_app), ChooseAppFragment::class.java, CHOOSE_APP)
                     return
                 }
 
                 // 更新状态
                 mPluginManagerPresenter.updatePlugin(
-                        item, listOf(), Constant.Status.DISABLED)
+                        vItem, listOf(), Constant.Status.DISABLED)
                 mPluginListAdapter.notifyDataSetChanged()
             }
         }
@@ -252,5 +250,37 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
                 }
             }}
         }.show()
+    }
+
+    /**
+     * 打开Xposed设置界面
+     */
+    private fun openXposedSettings(model: PluginModel) {
+
+        try {
+            val intent = Intent().apply {
+                `package` = model.base.packageName
+                addCategory(MODULE_SETTINGS)
+            }
+
+            val result = packageManager.queryIntentActivities(intent, 0)
+
+            if (result != null && result.isNotEmpty()) {
+                // 进入界面
+                val activityInfo = result[0].activityInfo
+
+                ActivityUtil.startActivity(getContext(), Intent().apply {
+                    component = ComponentName(activityInfo.packageName, activityInfo.name)
+                })
+                return
+            }
+            showMessage("该模块未提示用户界面")
+        } catch (tr: Throwable) {
+            Alog.e("进入Xposed设置异常", tr)
+        }
+    }
+
+    private fun closeHookPackages(model: PluginModel) {
+        model.packageNames.forEach { SystemUtil.forceStop(it) }
     }
 }

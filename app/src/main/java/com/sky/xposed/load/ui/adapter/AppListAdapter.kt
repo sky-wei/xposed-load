@@ -38,6 +38,19 @@ import com.sky.xposed.load.data.model.AppModel
  */
 class AppListAdapter(context: Context) : SimpleRecyclerAdapter<AppModel>(context) {
 
+    var selectApp = HashMap<String, AppModel>()
+
+    fun selectApp(model: AppModel, select: Boolean = true) {
+
+        if (select) {
+            // 添加
+            selectApp.put(model.packageName, model)
+            return
+        }
+        // 删除
+        selectApp.remove(model.packageName)
+    }
+
     override fun onCreateView(layoutInflater: LayoutInflater, viewGroup: ViewGroup, viewType: Int): View {
         return layoutInflater.inflate(R.layout.item_app_list, viewGroup, false)
     }
@@ -71,6 +84,7 @@ class AppListAdapter(context: Context) : SimpleRecyclerAdapter<AppModel>(context
             tvName.text = item.label
             tvDesc.text = "包名: ${item.packageName}\n版本: v" +
                     "${item.versionName}\n版本号: ${item.versionCode}"
+            ckSelect.isChecked = selectApp.containsKey(item.packageName)
         }
 
         @OnClick(R.id.ck_select)

@@ -19,7 +19,9 @@ package com.sky.xposed.load.ui.util
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.text.TextUtils
 import com.sky.xposed.load.Constant
 import com.sky.xposed.load.ui.activity.CommonActivity
@@ -116,5 +118,13 @@ object ActivityUtil {
         }
 
         return startActivityForResult(activity, intent, requestCode)
+    }
+
+    fun startAppSettingsActivity(context: Context, packageName: String): Boolean {
+
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            data = Uri.fromParts("package", packageName, null)
+        }
+        return startActivity(context, intent)
     }
 }

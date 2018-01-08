@@ -38,7 +38,11 @@ interface ChooseAppContract {
 
     interface Presenter : BasePresenter {
 
-        fun loadApps(filter: Int)
+        fun setFilter(filter: Int)
+
+        fun getFilter(): Int
+
+        fun loadApps()
 
         fun searchApp(keyword: String)
     }

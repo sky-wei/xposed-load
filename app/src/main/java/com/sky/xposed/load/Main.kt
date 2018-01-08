@@ -18,10 +18,14 @@ package com.sky.xposed.load
 
 import android.app.ActivityThread
 import android.content.Context
+import android.net.Uri
+import android.text.TextUtils
+import com.alibaba.fastjson.JSON
+import com.sky.xposed.load.data.db.entity.PluginEntity
+import com.sky.xposed.load.util.Alog
 import dalvik.system.PathClassLoader
 import de.robv.android.xposed.IXposedHookInitPackageResources
 import de.robv.android.xposed.IXposedHookLoadPackage
-import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_InitPackageResources
 import de.robv.android.xposed.callbacks.XC_LoadPackage
@@ -34,14 +38,18 @@ class Main : IXposedHookLoadPackage, IXposedHookInitPackageResources {
     override fun handleLoadPackage(param: XC_LoadPackage.LoadPackageParam) {
 
         try {
+            val startTime = System.currentTimeMillis()
+
             val packageName = param.packageName
             val context = getSystemContext()
 
-//            XposedBridge.log(">>>> PackageName: " + packageName)
+            Alog.d(">>>> PackageName: " + packageName)
 
             handleLoadPackage(context, packageName, param)
+
+            Alog.d(">>>>> LoadTime " + (System.currentTimeMillis() - startTime))
         } catch (tr: Throwable) {
-            XposedBridge.log(tr)
+            Alog.e("处理异常", tr)
         }
     }
 
@@ -55,26 +63,46 @@ class Main : IXposedHookLoadPackage, IXposedHookInitPackageResources {
 
     private fun handleLoadPackage(context: Context, packageName: String, param: XC_LoadPackage.LoadPackageParam) {
 
-        if ("com.netease.newsreader.activity" == packageName) {
-            // 加载包
-            handlerNewsPackage(context, param)
+        val uri = Uri.parse("content://com.sky.xposed.load.ui.provider/package")
+        val cursor = context.contentResolver.query(
+                uri, null, packageName, null, null)
+
+        if (cursor != null && cursor.moveToFirst()) {
+
+            val data = cursor.getString(cursor.getColumnIndex("DATA"))
+            cursor.close()
+
+            val list = JSON.parseArray(data, PluginEntity::class.java)
+
+            list.forEach { handlerLoadPackage(context, param, it) }
         }
     }
 
-    private fun handlerNewsPackage(context: Context, param: XC_LoadPackage.LoadPackageParam) {
+    private fun handlerLoadPackage(context: Context, param: XC_LoadPackage.LoadPackageParam, plugin: PluginEntity) {
 
-        val classLoader = loadClassLoader(
-                context, "com.sky.xposed.rmad", param)
+        if (TextUtils.isEmpty(plugin.packageName)
+                || TextUtils.isEmpty(plugin.main)) {
+            Alog.e("包名或入口为空,无法进行加载")
+            return
+        }
 
-        val mainClass = classLoader.loadClass("com.sky.xposed.rmad.hook.Main")
-        val mainAny = mainClass.newInstance()
+        try {
+            Alog.d(" >>> 正在加载: ${plugin.packageName}")
 
-        // 直接调用
-        XposedHelpers.callMethod(mainAny, "handleLoadPackage", param)
+            // 加载Dex
+            val classLoader = loadClassLoader(context, plugin.packageName)
+
+            val mainClass = classLoader.loadClass(plugin.main)
+            val mainAny = mainClass.newInstance()
+
+            // 直接调用
+            XposedHelpers.callMethod(mainAny, "handleLoadPackage", param)
+        } catch (tr: Throwable) {
+            Alog.e("加载${plugin.packageName}插件异常", tr)
+        }
     }
 
-    private fun loadClassLoader(context: Context, packageName: String,
-                                param: XC_LoadPackage.LoadPackageParam): ClassLoader {
+    private fun loadClassLoader(context: Context, packageName: String): ClassLoader {
 
         val packageInfo = context.packageManager.getPackageInfo(packageName, 0)
         val applicationInfo = packageInfo.applicationInfo

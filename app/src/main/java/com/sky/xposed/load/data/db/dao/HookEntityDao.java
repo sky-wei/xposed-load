@@ -47,7 +47,7 @@ public class HookEntityDao extends AbstractDao<HookEntity, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"HOOK_ENTITY\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
-                "\"PACKAGE_NAME\" TEXT," + // 1: packageName
+                "\"PACKAGE_NAME\" TEXT UNIQUE ," + // 1: packageName
                 "\"PLUGIN_IDS\" TEXT);"); // 2: pluginIds
     }
 

@@ -36,25 +36,30 @@
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="de.robv.android.xposed.category.MODULE_SETTINGS" />
             </intent-filter>
-
-            <meta-data
-                android:name="xposedmodule"
-                android:value="true"/>
-
-            <meta-data
-                android:name="xposeddescription"
-                android:value="动态模块加载"/>
-
-            <meta-data
-                android:name="xposedminversion"
-                android:value="54"/>
         </activity>
+
+        <provider
+            android:authorities="com.sky.xposed.load.ui.provider"
+            android:name=".ui.provider.PluginProvider"
+            android:exported="true"/>
 
         <activity android:name=".ui.activity.CommonActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/AppTheme.NoActionBar"
             />
+
+        <meta-data
+            android:name="xposedmodule"
+            android:value="true"/>
+
+        <meta-data
+            android:name="xposeddescription"
+            android:value="动态模块加载"/>
+
+        <meta-data
+            android:name="xposedminversion"
+            android:value="54"/>
     </application>
 
 </manifest>

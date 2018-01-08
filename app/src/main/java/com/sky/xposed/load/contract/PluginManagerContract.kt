@@ -30,10 +30,16 @@ interface PluginManagerContract {
         fun onLoadPlugins(models: List<PluginModel>)
 
         fun onLoadPluginsFailed(msg: String)
+
+        fun onUpdatePlugin(model: PluginModel)
+
+        fun onUpdatePluginFailed(msg: String)
     }
 
     interface Presenter : BasePresenter {
 
         fun loadPlugins()
+
+        fun updatePlugin(model: PluginModel, packageNames: List<String>, status: Int)
     }
 }

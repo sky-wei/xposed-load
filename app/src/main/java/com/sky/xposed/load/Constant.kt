@@ -21,6 +21,15 @@ package com.sky.xposed.load
  */
 object Constant {
 
+    object Cache {
+
+        /** 内存缓存 */
+        val MEMORY = 10 * 1024 * 1024
+
+        /** 磁盘缓存 */
+        val DISK = 500 * 1024 * 1024
+    }
+
     object Key {
 
         val ARGS = "args"
@@ -60,5 +69,14 @@ object Constant {
         val LONG_CLICK = 0x02
 
         val SELECT = 0x03
+    }
+
+    object Filter {
+
+        val USER = 0x01
+
+        val SYSTEM = 0x02
+
+        val ALL = 0x03
     }
 }

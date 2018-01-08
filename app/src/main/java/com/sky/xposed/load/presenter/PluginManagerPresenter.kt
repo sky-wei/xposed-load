@@ -18,6 +18,7 @@ package com.sky.xposed.load.presenter
 
 import com.sky.xposed.load.contract.PluginManagerContract
 import com.sky.xposed.load.data.local.PluginManager
+import com.sky.xposed.load.data.model.PluginModel
 
 /**
  * Created by sky on 18-1-5.
@@ -34,6 +35,16 @@ class PluginManagerPresenter(private val pluginManager: PluginManager, private v
                 }, {
                     view.cancelLoading()
                     view.onLoadPluginsFailed(it?.message?:"")
+                })
+    }
+
+    override fun updatePlugin(model: PluginModel, packageNames: List<String>, status: Int) {
+
+        ioToMain(pluginManager.updatePlugin(model, packageNames, status))
+                .subscribe({
+                    view.onUpdatePlugin(it)
+                }, {
+                    view.onUpdatePluginFailed(it?.message?:"")
                 })
     }
 }

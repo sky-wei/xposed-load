@@ -17,16 +17,22 @@
 package com.sky.xposed.load.data.local
 
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import com.sky.android.common.utils.FileUtils
 import com.sky.xposed.load.Constant
 import com.sky.xposed.load.data.db.DBManager
+import com.sky.xposed.load.data.db.dao.HookEntityDao
+import com.sky.xposed.load.data.db.entity.HookEntity
 import com.sky.xposed.load.data.db.entity.PluginEntity
 import com.sky.xposed.load.data.local.info.PluginInfo
 import com.sky.xposed.load.data.model.AppModel
 import com.sky.xposed.load.data.model.PluginModel
 import com.sky.xposed.load.util.Alog
 import rx.Observable
+import java.io.InputStream
+import java.util.zip.ZipFile
 
 /**
  * Created by sky on 18-1-5.
@@ -62,15 +68,29 @@ class PluginManager private constructor() {
         return loadPlugins{ it == mContext.packageName }
     }
 
+    fun updatePlugin(model: PluginModel, packageNames: List<String>, status: Int): Observable<PluginModel> {
+        return onUnsafeCreate{ updateLocalPlugin(model, packageNames, status) }
+    }
+
     fun loadPlugins(filter: (packageName: String) -> Boolean): Observable<List<PluginModel>> {
         return onUnsafeCreate{ loadLocalPlugins(filter) }
     }
 
-    fun loadApps(): Observable<List<AppModel>> {
-        return onUnsafeCreate{ loadLocalApps() }
+    fun loadApps(filter: Int): Observable<List<AppModel>> {
+        return onUnsafeCreate{ loadLocalApps{
+            when(filter) {
+                Constant.Filter.USER -> {
+                    (it.flags and ApplicationInfo.FLAG_SYSTEM) != 0 ||  it.packageName == mContext.packageName
+                }
+                Constant.Filter.SYSTEM -> {
+                    (it.flags and ApplicationInfo.FLAG_SYSTEM) == 0 ||  it.packageName == mContext.packageName
+                }
+                else -> it.packageName == mContext.packageName
+            }
+        }}
     }
 
-    fun loadLocalApps(): List<AppModel> {
+    fun loadLocalApps(filter: (applicationInfo: ApplicationInfo) -> Boolean): List<AppModel> {
 
         val appList = ArrayList<AppModel>()
 
@@ -80,7 +100,8 @@ class PluginManager private constructor() {
 
             val info = it.applicationInfo
 
-            if (info != null && info.enabled) {
+            if (info != null && info.enabled
+                    && !filter.invoke(info)) {
                 // 添加到列表中
                 appList.add(newAppInfo(mContext.packageManager, it))
             }
@@ -175,7 +196,6 @@ class PluginManager private constructor() {
 
     fun newAppInfo(packageManager: PackageManager, packageInfo: PackageInfo): AppModel {
 
-
         val applicationInfo = packageInfo.applicationInfo
 
         val packageName = packageInfo.packageName
@@ -189,10 +209,72 @@ class PluginManager private constructor() {
 
     fun getPluginMain(packageInfo: PackageInfo): String {
 
+        var stream: InputStream? = null
+        var apkFile: ZipFile? = null
         val applicationInfo = packageInfo.applicationInfo
-        applicationInfo.publicSourceDir
 
+        try {
+            apkFile = ZipFile(applicationInfo.publicSourceDir)
+            val entry = apkFile.getEntry("assets/xposed_init") ?: return ""
+
+            stream = apkFile.getInputStream(entry)
+            // 获取入口信息
+            return stream.bufferedReader().readLine()
+        } catch (tr: Throwable) {
+            Alog.e("获取入口信息异常")
+        } finally {
+            FileUtils.closeQuietly(stream)
+            FileUtils.closeQuietly(apkFile)
+        }
         return ""
+    }
+
+    fun updateLocalPlugin(model: PluginModel, packageNames: List<String>, status: Int): PluginModel {
+
+        val dbManager = DBManager.getInstance(mContext)
+        val pluginEntityDao = dbManager.pluginEntityDao
+        val hookEntityDao = dbManager.hookEntityDao
+
+        model.packageNames.forEach {
+
+            val hookEntity = hookEntityDao.queryBuilder().where(
+                    HookEntityDao.Properties.PackageName.eq(it)).unique()
+
+            if (hookEntity != null) {
+                // 更新数据
+                hookEntity.pluginIds = removeListId(hookEntity.pluginIds, model.id)
+                hookEntityDao.update(hookEntity)
+            }
+        }
+
+        packageNames.forEach {
+
+            val hookEntity = hookEntityDao.queryBuilder().where(
+                    HookEntityDao.Properties.PackageName.eq(it)).unique()
+
+            if (hookEntity == null) {
+                // 添加到数据库中
+                hookEntityDao.insert(HookEntity().apply {
+                    this.packageName = it
+                    this.pluginIds = listOf(model.id)
+                })
+            } else {
+                hookEntity.pluginIds = addIdToList(hookEntity.pluginIds, model.id)
+                hookEntityDao.update(hookEntity)
+            }
+        }
+
+        model.packageNames = packageNames
+        model.status = status
+
+        val pluginEntity = pluginEntityDao.load(model.id)
+        pluginEntity.hookPackageNames = packageNames
+        pluginEntity.status = status
+
+        // 更新数据
+        pluginEntityDao.update(pluginEntity)
+
+        return model
     }
 
     fun <T> onUnsafeCreate(next: () -> T): Observable<T> {
@@ -211,5 +293,28 @@ class PluginManager private constructor() {
 
     fun <T> transformNullList(dto: List<T>?): List<T> {
         return dto ?: listOf()
+    }
+
+    fun removeListId(ids: List<Long>?, id: Long): List<Long> {
+
+        if (ids == null) return listOf()
+
+        val result = ArrayList<Long>()
+
+        ids.forEach { if (it != id) result.add(it) }
+
+        return result
+    }
+
+    fun addIdToList(ids: List<Long>?, id: Long): List<Long> {
+
+        if (ids == null) return listOf(id)
+
+        val result = ArrayList<Long>()
+
+        result.addAll(ids)
+        result.add(id)
+
+        return result
     }
 }

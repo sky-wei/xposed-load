@@ -16,6 +16,7 @@
 
 package com.sky.xposed.load.ui.activity
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.widget.SwipeRefreshLayout
@@ -38,11 +39,16 @@ import com.sky.xposed.load.presenter.PluginManagerPresenter
 import com.sky.xposed.load.ui.adapter.PluginListAdapter
 import com.sky.xposed.load.ui.adapter.SpacesItemDecoration
 import com.sky.xposed.load.ui.base.BaseActivity
+import com.sky.xposed.load.ui.diglog.ChooseDialog
 import com.sky.xposed.load.ui.fragment.AboutFragment
 import com.sky.xposed.load.ui.fragment.ChooseAppFragment
 import com.sky.xposed.load.ui.helper.RecyclerHelper
 import com.sky.xposed.load.ui.util.ActivityUtil
 import java.io.Serializable
+import android.net.Uri.fromParts
+import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+
+
 
 class PluginManagerActivity : BaseActivity(), OnItemEventListener,
         RecyclerHelper.OnCallback, PluginManagerContract.View {
@@ -59,6 +65,7 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
     @BindView(R.id.recycler_view)
     lateinit var recyclerView: RecyclerView
 
+    private var mCurPosition = -1
     private lateinit var mPluginListAdapter: PluginListAdapter
     private lateinit var mRecyclerHelper: RecyclerHelper
 
@@ -114,6 +121,37 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
         return true
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode != Activity.RESULT_OK) {
+            mPluginListAdapter.notifyDataSetChanged()
+            return
+        }
+
+        when(requestCode) {
+            CHOOSE_APP -> {
+                val packageNames = data!!
+                        .getSerializableExtra(Constant.Key.ANY) as List<String>
+
+                val item = mPluginListAdapter.getItem(mCurPosition)
+
+                if (packageNames.isNotEmpty()) {
+                    // 更新状态
+                    mPluginManagerPresenter.updatePlugin(
+                            item, packageNames, Constant.Status.ENABLED)
+                    mPluginListAdapter.notifyDataSetChanged()
+                    return
+                }
+
+                // 更新状态
+                mPluginManagerPresenter.updatePlugin(
+                        item, listOf(), Constant.Status.DISABLED)
+                mPluginListAdapter.notifyDataSetChanged()
+            }
+        }
+    }
+
     override fun showLoading() {
     }
 
@@ -126,12 +164,30 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
         when(event) {
             Constant.EventId.LONG_CLICK -> {
 
+                val vItem = mPluginListAdapter.getItem(position)
+
+                if (vItem.status == Constant.Status.DISABLED) return
+
+                ChooseDialog.build(getContext()){
+                    stringItems { arrayOf("Hook应用信息") }
+                    onChooseListener { object : ChooseDialog.OnChooseListener{
+                        override fun onChoose(position: Int, item: ChooseDialog.ChooseItem) {
+                            when(position) {
+                                0 -> {
+                                    // 显示提示框
+                                    showChooseAppDialog(vItem.packageNames)
+                                }
+                            }
+                        }
+                    }}
+                }.show()
             }
             Constant.EventId.CLICK -> {
 
             }
             Constant.EventId.SELECT -> {
 
+                mCurPosition = position
                 val cbSelect = view as CheckBox
                 val item = mPluginListAdapter.getItem(position)
 
@@ -146,6 +202,11 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
                             getString(R.string.choose_app), ChooseAppFragment::class.java, args, CHOOSE_APP)
                     return
                 }
+
+                // 更新状态
+                mPluginManagerPresenter.updatePlugin(
+                        item, listOf(), Constant.Status.DISABLED)
+                mPluginListAdapter.notifyDataSetChanged()
             }
         }
     }
@@ -164,5 +225,32 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
 
     override fun onLoadPluginsFailed(msg: String) {
         showMessage(msg)
+    }
+
+    override fun onUpdatePlugin(model: PluginModel) {
+        mPluginListAdapter.notifyDataSetChanged()
+    }
+
+    override fun onUpdatePluginFailed(msg: String) {
+        showMessage(msg)
+    }
+
+    private fun showChooseAppDialog(list: List<String>) {
+
+        if (list.size == 1) {
+            // 进入设置
+            ActivityUtil.startAppSettingsActivity(getContext(), list[0])
+            return
+        }
+
+        ChooseDialog.build(getContext()){
+            stringItems { list.toTypedArray() }
+            onChooseListener { object : ChooseDialog.OnChooseListener{
+                override fun onChoose(position: Int, item: ChooseDialog.ChooseItem) {
+                    // 进入设置
+                    ActivityUtil.startAppSettingsActivity(getContext(), list[position])
+                }
+            }}
+        }.show()
     }
 }

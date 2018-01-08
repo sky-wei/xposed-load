@@ -17,6 +17,8 @@
 package com.sky.xposed.load.presenter
 
 import com.sky.android.cherry.base.BasePresenter
+import com.sky.xposed.load.data.local.PluginManager
+import com.sky.xposed.load.util.Alog
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
@@ -42,5 +44,19 @@ abstract class AbstractPresenter : BasePresenter {
         return observable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+    }
+
+    fun <T> onUnsafeCreate(next: () -> T): Observable<T> {
+
+        return Observable.unsafeCreate<T> {
+
+            try {
+                it.onNext(next.invoke())
+                it.onCompleted()
+            } catch (tr: Throwable) {
+                Alog.e(PluginManager.TAG, "处理异常", tr)
+                it.onError(tr)
+            }
+        }
     }
 }

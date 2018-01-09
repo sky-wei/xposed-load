@@ -17,7 +17,9 @@
 package com.sky.xposed.load.ui.activity
 
 import android.app.Activity
+import android.app.ActivityManager
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
@@ -42,6 +44,7 @@ import com.sky.xposed.load.ui.base.BaseActivity
 import com.sky.xposed.load.ui.diglog.ChooseDialog
 import com.sky.xposed.load.ui.fragment.AboutFragment
 import com.sky.xposed.load.ui.fragment.ChooseAppFragment
+import com.sky.xposed.load.ui.fragment.SettingsFragment
 import com.sky.xposed.load.ui.helper.RecyclerHelper
 import com.sky.xposed.load.ui.util.ActivityUtil
 import com.sky.xposed.load.util.Alog
@@ -110,6 +113,10 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
 
         when(item.itemId) {
             R.id.menu_settings -> {
+                // 进入设置界面
+                ActivityUtil.startCommonActivity(
+                        this, getString(R.string.settings),
+                        SettingsFragment::class.java.name, false, null)
             }
             R.id.menu_about -> {
                 // 进入关于界面
@@ -164,22 +171,18 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
 
         when(event) {
             Constant.EventId.LONG_CLICK -> {
-                // 处理长按事件
-                if (vItem.status == Constant.Status.DISABLED) return
+
+                val items = if (vItem.status == Constant.Status.DISABLED)
+                    arrayOf("当前应用信息") else arrayOf("当前应用信息", "Hook应用信息", "关闭关联应用")
 
                 ChooseDialog.build(getContext()){
-                    stringItems { arrayOf("Hook应用信息", "关闭关联应用") }
+                    stringItems { items }
                     onChooseListener { object : ChooseDialog.OnChooseListener{
                         override fun onChoose(position: Int, item: ChooseDialog.ChooseItem) {
                             when(position) {
-                                0 -> {
-                                    // 显示提示框
-                                    showChooseAppDialog(vItem.packageNames)
-                                }
-                                1 -> {
-                                    // 关闭关联的包
-                                    closeHookPackages(vItem)
-                                }
+                                0 -> { showChooseAppDialog(listOf(vItem.base.packageName)) }
+                                1 -> { showChooseAppDialog(vItem.packageNames) }
+                                2 -> { closeHookPackages(vItem) }
                             }
                         }
                     }}
@@ -200,6 +203,9 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
                             getString(R.string.choose_app), ChooseAppFragment::class.java, CHOOSE_APP)
                     return
                 }
+
+                // 关闭关联应用
+                closeHookPackages(vItem)
 
                 // 更新状态
                 mPluginManagerPresenter.updatePlugin(
@@ -226,6 +232,10 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
     }
 
     override fun onUpdatePlugin(model: PluginModel) {
+
+        // 关闭关联应用
+        closeHookPackages(model)
+
         mPluginListAdapter.notifyDataSetChanged()
     }
 
@@ -281,6 +291,6 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
     }
 
     private fun closeHookPackages(model: PluginModel) {
-        model.packageNames.forEach { SystemUtil.forceStop(it) }
+        model.packageNames.forEach { SystemUtil.killBackgroundProcesses(getContext(), it) }
     }
 }

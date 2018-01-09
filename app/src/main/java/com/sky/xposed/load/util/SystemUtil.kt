@@ -1,5 +1,8 @@
 package com.sky.xposed.load.util
 
+import android.app.ActivityManager
+import android.content.Context
+import android.os.Build
 import android.text.TextUtils
 import com.sky.android.common.utils.FileUtils
 import java.io.BufferedReader
@@ -11,6 +14,19 @@ import java.io.InputStreamReader
 object SystemUtil {
 
     val TAG = "SystemUtil"
+
+    fun killBackgroundProcesses(context: Context, packageName: String): Boolean {
+
+        val activityManager = context.getSystemService(
+                Context.ACTIVITY_SERVICE) as ActivityManager
+        try {
+            activityManager.killBackgroundProcesses(packageName)
+            return true
+        } catch (tr: Throwable) {
+            Alog.e("Kill包异常", tr)
+        }
+        return false
+    }
 
     fun forceStop(packageName: String) {
 

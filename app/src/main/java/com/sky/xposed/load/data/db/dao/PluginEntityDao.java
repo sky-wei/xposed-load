@@ -49,7 +49,7 @@ public class PluginEntityDao extends AbstractDao<PluginEntity, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"PLUGIN_ENTITY\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
-                "\"PACKAGE_NAME\" TEXT," + // 1: packageName
+                "\"PACKAGE_NAME\" TEXT UNIQUE ," + // 1: packageName
                 "\"MAIN\" TEXT," + // 2: main
                 "\"STATUS\" INTEGER NOT NULL ," + // 3: status
                 "\"HOOK_PACKAGE_NAMES\" TEXT);"); // 4: hookPackageNames

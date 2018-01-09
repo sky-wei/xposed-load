@@ -21,6 +21,7 @@ import android.app.ActivityManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.preference.PreferenceManager
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -46,6 +47,7 @@ import com.sky.xposed.load.ui.fragment.AboutFragment
 import com.sky.xposed.load.ui.fragment.ChooseAppFragment
 import com.sky.xposed.load.ui.fragment.SettingsFragment
 import com.sky.xposed.load.ui.helper.RecyclerHelper
+import com.sky.xposed.load.ui.service.PluginService
 import com.sky.xposed.load.ui.util.ActivityUtil
 import com.sky.xposed.load.util.Alog
 import com.sky.xposed.load.util.SystemUtil
@@ -83,6 +85,8 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
         // 设置ActionBar
         setSupportActionBar(toolbar,
                 getString(R.string.app_name), false)
+
+        initPluginService()
 
         swipeRefreshLayout.setColorSchemeResources(R.color.colorAccent)
 
@@ -262,6 +266,14 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
         }.show()
     }
 
+    private fun initPluginService() {
+
+        val preferences = PreferenceManager.getDefaultSharedPreferences(getContext())
+        val autoKill = preferences.getBoolean(Constant.Preference.AUTO_KILL_APP, false)
+
+        if (autoKill) startService(Intent(getContext(), PluginService::class.java))
+    }
+
     /**
      * 打开Xposed设置界面
      */
@@ -291,6 +303,10 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
     }
 
     private fun closeHookPackages(model: PluginModel) {
-        model.packageNames.forEach { SystemUtil.killBackgroundProcesses(getContext(), it) }
+
+        val preferences = PreferenceManager.getDefaultSharedPreferences(getContext())
+        val rootKillApp = preferences.getBoolean(Constant.Preference.ROOT_KILL_APP, false)
+
+        model.packageNames.forEach { SystemUtil.killApp(getContext(), it, rootKillApp) }
     }
 }

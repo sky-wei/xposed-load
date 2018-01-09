@@ -39,6 +39,8 @@
             </intent-filter>
         </activity>
 
+        <service android:name=".ui.service.PluginService" />
+
         <provider
             android:authorities="com.sky.xposed.load.ui.provider"
             android:name=".ui.provider.PluginProvider"

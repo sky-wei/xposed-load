@@ -16,12 +16,13 @@
 
 package com.sky.xposed.load.ui.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.preference.Preference
 import android.preference.PreferenceFragment
 import com.sky.xposed.load.Constant
 import com.sky.xposed.load.R
-import com.sky.xposed.load.ui.util.VToast
+import com.sky.xposed.load.ui.service.PluginService
 
 /**
  * Created by sky on 18-1-9.
@@ -39,8 +40,18 @@ class SettingsFragment : PreferenceFragment(), Preference.OnPreferenceChangeList
 
     override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
 
-        VToast.show("功能暂未实现")
-
-        return false
+        when(preference.key) {
+            Constant.Preference.AUTO_KILL_APP -> {
+                // 自动Kill
+                if (newValue as Boolean) {
+                    // 启动监听服务
+                    activity.startService(Intent(activity, PluginService::class.java))
+                } else {
+                    // 停止监听服务
+                    activity.stopService(Intent(activity, PluginService::class.java))
+                }
+            }
+        }
+        return true
     }
 }

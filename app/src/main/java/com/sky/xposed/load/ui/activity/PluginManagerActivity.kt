@@ -274,7 +274,7 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
                 })
                 return
             }
-            showMessage("该模块未提示用户界面")
+            showMessage("该模块未配置用户界面")
         } catch (tr: Throwable) {
             Alog.e("进入Xposed设置异常", tr)
         }

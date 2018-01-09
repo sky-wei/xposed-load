@@ -22,4 +22,9 @@
     <string name="version_x">版本 v%s</string>
     <string name="mail">邮箱：jingcai.wei@163.com</string>
     <string name="source">项目地址：<u>https://github.com/jingcai-wei</u></string>
+    <string name="personal_setting">个人</string>
+    <string name="auto_kill_app">自动关闭应用</string>
+    <string name="auto_kill_app_summary">插件重新安装之后自动关闭关联应用</string>
+    <string name="root_kill_app">Root权限关闭应用</string>
+    <string name="root_kill_app_summary">对于普通方式无法关闭应用的手机\n使用Root权限关闭应用</string>
 </resources>

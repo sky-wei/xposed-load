@@ -79,4 +79,11 @@ object Constant {
 
         val ALL = 0x03
     }
+
+    object Preference {
+
+        val AUTO_KILL_APP = "auto_kill_app"
+
+        val ROOT_KILL_APP = "root_kill_app"
+    }
 }

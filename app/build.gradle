@@ -34,7 +34,7 @@ repositories {
 }
 
 greendao {
-    schemaVersion 1
+    schemaVersion 2
     daoPackage 'com.sky.xposed.load.data.db.dao'
     targetGenDir 'src/main/java'
 }

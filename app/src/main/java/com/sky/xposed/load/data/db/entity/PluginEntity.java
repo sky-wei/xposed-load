@@ -24,6 +24,7 @@ import org.greenrobot.greendao.annotation.Id;
 
 import java.util.List;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Unique;
 
 /**
  * Created by sky on 18-1-4.
@@ -34,6 +35,7 @@ public class PluginEntity {
     @Id(autoincrement = true)
     private Long id;
 
+    @Unique
     private String packageName;
     private String main;
     private int status;

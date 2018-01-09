@@ -41,7 +41,7 @@ class Main : IXposedHookLoadPackage, IXposedHookInitPackageResources {
             val packageName = param.packageName
             val context = getSystemContext()
 
-            Alog.d(">>>> PackageName: $packageName")
+//            Alog.d(">>>> PackageName: $packageName")
 
             handleLoadPackage(context, packageName, param)
         } catch (tr: Throwable) {

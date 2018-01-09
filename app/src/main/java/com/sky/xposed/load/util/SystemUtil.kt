@@ -1,5 +1,8 @@
 package com.sky.xposed.load.util
 
+import android.app.ActivityManager
+import android.content.Context
+import android.os.Build
 import android.text.TextUtils
 import com.sky.android.common.utils.FileUtils
 import java.io.BufferedReader
@@ -12,11 +15,37 @@ object SystemUtil {
 
     val TAG = "SystemUtil"
 
+    fun killApp(context: Context, packageName: String, root: Boolean) {
+
+        Alog.d(">>>>>>>>> Kill: $packageName Root: $root")
+
+        if (root) {
+            forceStop(packageName)
+            return
+        }
+
+        // 普通的方式
+        killBackgroundProcesses(context, packageName)
+    }
+
+    fun killBackgroundProcesses(context: Context, packageName: String): Boolean {
+
+        val activityManager = context.getSystemService(
+                Context.ACTIVITY_SERVICE) as ActivityManager
+        try {
+            activityManager.killBackgroundProcesses(packageName)
+            return true
+        } catch (tr: Throwable) {
+            Alog.e("Kill包异常", tr)
+        }
+        return false
+    }
+
     fun forceStop(packageName: String) {
 
         if (TextUtils.isEmpty(packageName)) return
 
-        val cmd = "am force-stop " + packageName
+        val cmd = "su -c am force-stop $packageName"
 
         Alog.d(TAG, "CMD: " + cmd)
 
@@ -38,7 +67,7 @@ object SystemUtil {
             throw NullPointerException("执行任务不能为空")
         }
 
-        return exec("su -c " + cmd)
+        return exec("su -c $cmd")
     }
 
     /**

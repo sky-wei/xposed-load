@@ -59,8 +59,16 @@ class Main : IXposedHookLoadPackage, IXposedHookInitPackageResources {
 
     private fun handleLoadPackage(context: Context, packageName: String, param: XC_LoadPackage.LoadPackageParam) {
 
+        val contentResolver = context.contentResolver
+
+        if (contentResolver == null
+                || BuildConfig.APPLICATION_ID == packageName) {
+            // 自己的包不处理
+            return
+        }
+
         val uri = Uri.parse("content://com.sky.xposed.load.ui.provider/package")
-        val cursor = context.contentResolver.query(
+        val cursor = contentResolver.query(
                 uri, null, packageName, null, null)
 
         if (cursor != null && cursor.moveToFirst()) {

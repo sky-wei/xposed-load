@@ -17,10 +17,9 @@
 package com.sky.xposed.load.ui.activity
 
 import android.app.Activity
-import android.app.ActivityManager
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
@@ -29,7 +28,6 @@ import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.CheckBox
 import butterknife.BindView
 import com.sky.android.common.interfaces.OnItemEventListener
 import com.sky.android.common.utils.DisplayUtils
@@ -174,10 +172,16 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
         val vItem = mPluginListAdapter.getItem(position)
 
         when(event) {
+            Constant.EventId.CLICK -> {
+                // 打开插件设置界面
+                openXposedSettings(vItem)
+            }
             Constant.EventId.LONG_CLICK -> {
+                // 保存当前选择下标
+                mCurPosition = position
 
                 val items = if (vItem.status == Constant.Status.DISABLED)
-                    arrayOf("当前应用信息") else arrayOf("当前应用信息", "Hook应用信息", "关闭关联应用")
+                    arrayOf("应用信息", "关联应用") else arrayOf("应用信息", "关联应用", "清除关联", "Hook应用信息", "关闭关联应用")
 
                 ChooseDialog.build(getContext()){
                     stringItems { items }
@@ -185,36 +189,29 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
                         override fun onChoose(position: Int, item: ChooseDialog.ChooseItem) {
                             when(position) {
                                 0 -> { showChooseAppDialog(listOf(vItem.base.packageName)) }
-                                1 -> { showChooseAppDialog(vItem.packageNames) }
-                                2 -> { closeHookPackages(vItem) }
+                                1 -> {
+                                    // 选择，需要跳转到
+                                    val args = Bundle().apply {
+                                        putSerializable(Constant.Key.ANY, ArrayList<String>(vItem.packageNames))
+                                    }
+                                    ActivityUtil.startCommonActivityForResult(this@PluginManagerActivity,
+                                            getString(R.string.choose_app), ChooseAppFragment::class.java, args, CHOOSE_APP)
+                                }
+                                2 -> {
+                                    // 关闭关联应用
+                                    closeHookPackages(vItem)
+
+                                    // 更新状态
+                                    mPluginManagerPresenter.updatePlugin(
+                                            vItem, listOf(), Constant.Status.DISABLED)
+                                    mPluginListAdapter.notifyDataSetChanged()
+                                }
+                                3 -> { showChooseAppDialog(vItem.packageNames) }
+                                4 -> { closeHookPackages(vItem) }
                             }
                         }
                     }}
                 }.show()
-            }
-            Constant.EventId.CLICK -> {
-                // 打开插件设置界面
-                openXposedSettings(vItem)
-            }
-            Constant.EventId.SELECT -> {
-                // 处理选择事件
-                mCurPosition = position
-                val cbSelect = view as CheckBox
-
-                if (cbSelect.isChecked) {
-                    // 选择，需要跳转到
-                    ActivityUtil.startCommonActivityForResult(this,
-                            getString(R.string.choose_app), ChooseAppFragment::class.java, CHOOSE_APP)
-                    return
-                }
-
-                // 关闭关联应用
-                closeHookPackages(vItem)
-
-                // 更新状态
-                mPluginManagerPresenter.updatePlugin(
-                        vItem, listOf(), Constant.Status.DISABLED)
-                mPluginListAdapter.notifyDataSetChanged()
             }
         }
     }

@@ -38,17 +38,17 @@ import com.sky.xposed.load.data.model.AppModel
  */
 class AppListAdapter(context: Context) : SimpleRecyclerAdapter<AppModel>(context) {
 
-    var selectApp = HashMap<String, AppModel>()
+    var selectApp = HashMap<String, String>()
 
-    fun selectApp(model: AppModel, select: Boolean = true) {
+    fun selectApp(packageName: String, select: Boolean = true) {
 
         if (select) {
             // 添加
-            selectApp.put(model.packageName, model)
+            selectApp.put(packageName, packageName)
             return
         }
         // 删除
-        selectApp.remove(model.packageName)
+        selectApp.remove(packageName)
     }
 
     override fun onCreateView(layoutInflater: LayoutInflater, viewGroup: ViewGroup, viewType: Int): View {

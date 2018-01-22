@@ -59,6 +59,7 @@ class ChooseAppFragment : BaseFragment(), TextWatcher, OnItemEventListener,
 
     private lateinit var mAppListAdapter: AppListAdapter
     private lateinit var mRecyclerHelper: RecyclerHelper
+    private var mSelectPackage: ArrayList<String>? = null
 
     lateinit var mChooseAppPresenter: ChooseAppContract.Presenter
 
@@ -67,6 +68,8 @@ class ChooseAppFragment : BaseFragment(), TextWatcher, OnItemEventListener,
     }
 
     override fun initView(view: View, args: Bundle?) {
+
+        mSelectPackage = args?.getSerializable(Constant.Key.ANY) as? ArrayList<String>
 
         setHasOptionsMenu(true)
         etSearch.addTextChangedListener(this)
@@ -133,6 +136,12 @@ class ChooseAppFragment : BaseFragment(), TextWatcher, OnItemEventListener,
 
     override fun onLoadApps(models: List<AppModel>) {
         mAppListAdapter.items = models
+
+        mSelectPackage?.forEach {
+            // 选择相应的应用
+            mAppListAdapter.selectApp(it)
+        }
+
         mAppListAdapter.notifyDataSetChanged()
     }
 
@@ -167,7 +176,7 @@ class ChooseAppFragment : BaseFragment(), TextWatcher, OnItemEventListener,
                 val item = mAppListAdapter.getItem(position)
 
                 // 选择图片
-                mAppListAdapter.selectApp(item, tView.isChecked)
+                mAppListAdapter.selectApp(item.packageName, tView.isChecked)
             }
         }
     }

@@ -56,8 +56,6 @@ class PluginListAdapter(context: Context) : SimpleRecyclerAdapter<PluginModel>(c
         lateinit var tvName: TextView
         @BindView(R.id.tv_desc)
         lateinit var tvDesc: TextView
-        @BindView(R.id.ck_select)
-        lateinit var ckSelect: CheckBox
 
         override fun onInitialize() {
             ButterKnife.bind(this, itemView)
@@ -72,17 +70,16 @@ class PluginListAdapter(context: Context) : SimpleRecyclerAdapter<PluginModel>(c
             tvName.text = item.base.label
             tvDesc.text = "包名: ${item.base.packageName}\n版本: v" +
                     "${item.base.versionName}\nHook: ${item.packageNames}"
-            ckSelect.isChecked = item.status == Constant.Status.ENABLED
         }
 
-        @OnClick(R.id.card_view, R.id.ck_select)
+        @OnClick(R.id.card_view, R.id.iv_more)
         fun onClick(view: View) {
             when(view.id) {
                 R.id.card_view -> {
                     onItemEvent(Constant.EventId.CLICK, view, adapterPosition)
                 }
-                R.id.ck_select -> {
-                    onItemEvent(Constant.EventId.SELECT, view, adapterPosition)
+                R.id.iv_more -> {
+                    onItemEvent(Constant.EventId.LONG_CLICK, view, adapterPosition)
                 }
             }
         }

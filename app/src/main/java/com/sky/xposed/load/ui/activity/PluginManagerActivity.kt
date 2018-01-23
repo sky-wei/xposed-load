@@ -181,7 +181,7 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
                 mCurPosition = position
 
                 val items = if (vItem.status == Constant.Status.DISABLED)
-                    arrayOf("插件信息", "关联应用") else arrayOf("插件信息", "关联应用", "清除关联", "Hook应用信息", "关闭关联应用")
+                    arrayOf("模块信息", "关联应用") else arrayOf("模块信息", "关联应用", "清除关联", "Hook应用信息", "关闭关联应用")
 
                 ChooseDialog.build(getContext()){
                     stringItems { items }

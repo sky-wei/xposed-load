@@ -31,8 +31,8 @@ import android.view.View
 import butterknife.BindView
 import com.sky.android.common.interfaces.OnItemEventListener
 import com.sky.android.common.utils.DisplayUtils
+import com.sky.xposed.app.R
 import com.sky.xposed.load.Constant
-import com.sky.xposed.load.R
 import com.sky.xposed.load.contract.PluginManagerContract
 import com.sky.xposed.load.data.local.PluginManager
 import com.sky.xposed.load.data.model.PluginModel

@@ -29,8 +29,8 @@ import butterknife.OnClick
 import com.sky.android.common.adapter.SimpleRecyclerAdapter
 import com.sky.android.common.base.BaseRecyclerAdapter
 import com.sky.android.common.base.BaseRecyclerHolder
+import com.sky.xposed.app.R
 import com.sky.xposed.load.Constant
-import com.sky.xposed.load.R
 import com.sky.xposed.load.data.model.AppModel
 
 /**

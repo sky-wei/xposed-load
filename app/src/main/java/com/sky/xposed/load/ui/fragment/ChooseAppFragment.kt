@@ -20,7 +20,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.widget.SwipeRefreshLayout
-import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.text.Editable
@@ -31,8 +30,8 @@ import android.widget.EditText
 import butterknife.BindView
 import com.sky.android.common.interfaces.OnItemEventListener
 import com.sky.android.common.utils.DisplayUtils
+import com.sky.xposed.app.R
 import com.sky.xposed.load.Constant
-import com.sky.xposed.load.R
 import com.sky.xposed.load.contract.ChooseAppContract
 import com.sky.xposed.load.data.local.PluginManager
 import com.sky.xposed.load.data.model.AppModel

@@ -15,7 +15,7 @@
   -->
 
 <resources>
-    <string name="app_name">Xposed Load</string>
+    <string name="app_name">XposedLoad</string>
     <string name="settings">设置</string>
     <string name="about">关于</string>
     <string name="choose_app">选择应用</string>

@@ -65,7 +65,7 @@ class PluginManager private constructor() {
     }
 
     fun loadPlugins(): Observable<List<PluginModel>> {
-        return loadPlugins{ it == mContext.packageName }
+        return loadPlugins{ it == Constant.Load.PACKAGE_NAME }
     }
 
     fun updatePlugin(model: PluginModel, packageNames: List<String>, status: Int): Observable<PluginModel> {
@@ -80,12 +80,12 @@ class PluginManager private constructor() {
         return onUnsafeCreate{ loadLocalApps{
             when(filter) {
                 Constant.Filter.USER -> {
-                    (it.flags and ApplicationInfo.FLAG_SYSTEM) != 0 ||  it.packageName == mContext.packageName
+                    (it.flags and ApplicationInfo.FLAG_SYSTEM) != 0 ||  it.packageName == Constant.Load.PACKAGE_NAME
                 }
                 Constant.Filter.SYSTEM -> {
-                    (it.flags and ApplicationInfo.FLAG_SYSTEM) == 0 ||  it.packageName == mContext.packageName
+                    (it.flags and ApplicationInfo.FLAG_SYSTEM) == 0 ||  it.packageName == Constant.Load.PACKAGE_NAME
                 }
-                else -> it.packageName == mContext.packageName
+                else -> it.packageName == Constant.Load.PACKAGE_NAME
             }
         }}
     }

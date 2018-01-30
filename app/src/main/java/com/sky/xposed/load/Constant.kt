@@ -21,6 +21,11 @@ package com.sky.xposed.load
  */
 object Constant {
 
+    object Load {
+
+        val PACKAGE_NAME = "com.sky.xposed.load"
+    }
+
     object Cache {
 
         /** 内存缓存 */

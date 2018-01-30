@@ -26,7 +26,7 @@ import butterknife.ButterKnife
 import butterknife.OnClick
 import com.sky.android.common.base.BaseRecyclerAdapter
 import com.sky.android.common.base.BaseRecyclerHolder
-import com.sky.xposed.load.R
+import com.sky.xposed.app.R
 import com.sky.xposed.load.ui.diglog.ChooseDialog
 
 /**

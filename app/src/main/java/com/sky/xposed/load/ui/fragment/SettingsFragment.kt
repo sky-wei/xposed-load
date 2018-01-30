@@ -20,8 +20,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.preference.Preference
 import android.preference.PreferenceFragment
+import com.sky.xposed.app.R
 import com.sky.xposed.load.Constant
-import com.sky.xposed.load.R
 import com.sky.xposed.load.ui.service.PluginService
 
 /**

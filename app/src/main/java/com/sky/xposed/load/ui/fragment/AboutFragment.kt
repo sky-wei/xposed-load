@@ -25,8 +25,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import butterknife.BindView
 import butterknife.OnClick
-import com.sky.xposed.load.BuildConfig
-import com.sky.xposed.load.R
+import com.sky.xposed.app.BuildConfig
+import com.sky.xposed.app.R
 import com.sky.xposed.load.ui.base.BaseFragment
 import com.sky.xposed.load.ui.util.ActivityUtil
 

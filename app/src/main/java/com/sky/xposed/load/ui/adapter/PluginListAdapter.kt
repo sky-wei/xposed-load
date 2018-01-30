@@ -20,7 +20,6 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import butterknife.BindView
@@ -30,8 +29,8 @@ import butterknife.OnLongClick
 import com.sky.android.common.adapter.SimpleRecyclerAdapter
 import com.sky.android.common.base.BaseRecyclerAdapter
 import com.sky.android.common.base.BaseRecyclerHolder
+import com.sky.xposed.app.R
 import com.sky.xposed.load.Constant
-import com.sky.xposed.load.R
 import com.sky.xposed.load.data.model.PluginModel
 
 /**

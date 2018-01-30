@@ -25,7 +25,7 @@ import android.view.View
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.sky.android.common.interfaces.OnItemEventListener
-import com.sky.xposed.load.R
+import com.sky.xposed.app.R
 import com.sky.xposed.load.ui.adapter.ChooseAdapter
 
 /**

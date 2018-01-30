@@ -22,8 +22,8 @@ import android.support.v7.widget.Toolbar
 import android.view.KeyEvent
 import android.view.MenuItem
 import butterknife.BindView
+import com.sky.xposed.app.R
 import com.sky.xposed.load.Constant
-import com.sky.xposed.load.R
 import com.sky.xposed.load.ui.base.BaseActivity
 import com.sky.xposed.load.ui.base.BaseFragment
 

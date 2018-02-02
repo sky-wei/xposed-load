@@ -19,6 +19,7 @@ package com.sky.xposed.load.ui.activity
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v4.widget.SwipeRefreshLayout
@@ -44,6 +45,7 @@ import com.sky.xposed.load.ui.diglog.ChooseDialog
 import com.sky.xposed.load.ui.fragment.AboutFragment
 import com.sky.xposed.load.ui.fragment.ChooseAppFragment
 import com.sky.xposed.load.ui.fragment.SettingsFragment
+import com.sky.xposed.load.ui.helper.ReceiverHelper
 import com.sky.xposed.load.ui.helper.RecyclerHelper
 import com.sky.xposed.load.ui.service.PluginService
 import com.sky.xposed.load.ui.util.ActivityUtil
@@ -52,7 +54,7 @@ import com.sky.xposed.load.util.SystemUtil
 
 
 class PluginManagerActivity : BaseActivity(), OnItemEventListener,
-        RecyclerHelper.OnCallback, PluginManagerContract.View {
+        RecyclerHelper.OnCallback, PluginManagerContract.View, ReceiverHelper.ReceiverCallback {
 
     companion object {
 
@@ -72,6 +74,7 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
     private lateinit var mPluginListAdapter: PluginListAdapter
     private lateinit var mRecyclerHelper: RecyclerHelper
 
+    private var mReceiverHelper: ReceiverHelper? = null
     private lateinit var mPluginManagerPresenter: PluginManagerContract.Presenter
 
     override fun getLayoutId(): Int {
@@ -104,6 +107,16 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
 
         mRecyclerHelper.forceRefreshing()
         mPluginManagerPresenter.loadPlugins()
+
+        // 注册广播
+        registerReceiver()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        // 注销广播
+        unregisterReceiver()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -244,6 +257,35 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
         showMessage(msg)
     }
 
+    override fun onReceive(action: String, intent: Intent) {
+
+        if (Intent.ACTION_PACKAGE_ADDED == action
+                || Intent.ACTION_PACKAGE_REMOVED == action) {
+
+            // 重新加载
+            mPluginManagerPresenter.loadPlugins()
+        }
+    }
+
+    private fun registerReceiver() {
+
+        val intentFilter = IntentFilter().apply {
+            addAction("android.intent.action.PACKAGE_ADDED")
+            addAction("android.intent.action.PACKAGE_REPLACED")
+            addAction("android.intent.action.PACKAGE_REMOVED")
+            addDataScheme("package")
+        }
+
+        mReceiverHelper = ReceiverHelper(this, this, intentFilter)
+        mReceiverHelper?.registerReceiver()
+    }
+
+    private fun unregisterReceiver() {
+
+        mReceiverHelper?.unregisterReceiver()
+        mReceiverHelper = null
+    }
+
     private fun showChooseAppDialog(list: List<String>) {
 
         if (list.size == 1) {
@@ -276,27 +318,50 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
      */
     private fun openXposedSettings(model: PluginModel) {
 
-        try {
-            val intent = Intent().apply {
-                `package` = model.base.packageName
-                addCategory(MODULE_SETTINGS)
-            }
+        var intent = Intent().apply {
+            `package` = model.base.packageName
+            addCategory(MODULE_SETTINGS)
+        }
 
+        if (openXposedSettings(intent)) {
+            // 启动成功
+            return
+        }
+
+        // 获取默认的
+        intent = Intent(Intent.ACTION_MAIN).apply {
+            `package` = model.base.packageName
+        }
+
+        if (openXposedSettings(intent)) {
+            // 启动成功
+            return
+        }
+
+        showMessage("该模块未配置用户界面")
+    }
+
+    /**
+     * 打开Xposed设置界面
+     */
+    private fun openXposedSettings(intent: Intent): Boolean {
+
+        try {
+            // 获取相应的入口
             val result = packageManager.queryIntentActivities(intent, 0)
 
             if (result != null && result.isNotEmpty()) {
                 // 进入界面
                 val activityInfo = result[0].activityInfo
 
-                ActivityUtil.startActivity(getContext(), Intent().apply {
+                return ActivityUtil.startActivity(getContext(), Intent().apply {
                     component = ComponentName(activityInfo.packageName, activityInfo.name)
                 })
-                return
             }
-            showMessage("该模块未配置用户界面")
         } catch (tr: Throwable) {
             Alog.e("进入Xposed设置异常", tr)
         }
+        return false
     }
 
     private fun closeHookPackages(model: PluginModel) {

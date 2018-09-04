@@ -45,9 +45,9 @@ object SystemUtil {
 
         if (TextUtils.isEmpty(packageName)) return
 
-        val cmd = "su -c am force-stop $packageName"
+        val cmd = "/data/system/caller -c am force-stop $packageName"
 
-        Alog.d(TAG, "CMD: " + cmd)
+        Alog.d(TAG, "CMD: $cmd")
 
         try {
             val runtime = Runtime.getRuntime()

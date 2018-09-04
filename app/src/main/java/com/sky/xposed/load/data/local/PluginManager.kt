@@ -176,7 +176,33 @@ class PluginManager private constructor() {
             }
         }
 
+        // 附加的
+        addVClubApp(pluginList, "club.vxv.vx.wxload")
+        addVClubApp(pluginList, "club.vxv.vx.vxcore")
+
         return pluginList
+    }
+
+    fun addVClubApp(list: ArrayList<PluginInfo>, packageName: String) {
+
+        try {
+            val packageManager = mContext.packageManager
+            val packageInfo = packageManager.getPackageInfo(packageName, 0)
+
+            val applicationInfo = packageInfo.applicationInfo
+
+            val packageName = packageInfo.packageName
+            val versionName = packageInfo.versionName
+            val versionCode = packageInfo.versionCode
+            val label = applicationInfo.loadLabel(packageManager).toString()
+            val image = applicationInfo.loadIcon(packageManager)
+            val main = getVClubPluginMain(packageInfo)
+
+            // 添加到列表中
+            list.add(PluginInfo(label, packageName, versionName, versionCode, image, main))
+        } catch (tr: Throwable) {
+            Alog.e("加载异常", tr)
+        }
     }
 
     fun newPluginInfo(packageManager: PackageManager, packageInfo: PackageInfo): PluginInfo {
@@ -216,6 +242,28 @@ class PluginManager private constructor() {
         try {
             apkFile = ZipFile(applicationInfo.publicSourceDir)
             val entry = apkFile.getEntry("assets/xposed_init") ?: return ""
+
+            stream = apkFile.getInputStream(entry)
+            // 获取入口信息
+            return stream.bufferedReader().readLine()
+        } catch (tr: Throwable) {
+            Alog.e("获取入口信息异常")
+        } finally {
+            FileUtils.closeQuietly(stream)
+            FileUtils.closeQuietly(apkFile)
+        }
+        return ""
+    }
+
+    fun getVClubPluginMain(packageInfo: PackageInfo): String {
+
+        var stream: InputStream? = null
+        var apkFile: ZipFile? = null
+        val applicationInfo = packageInfo.applicationInfo
+
+        try {
+            apkFile = ZipFile(applicationInfo.publicSourceDir)
+            val entry = apkFile.getEntry("raw/vclub") ?: return ""
 
             stream = apkFile.getInputStream(entry)
             // 获取入口信息

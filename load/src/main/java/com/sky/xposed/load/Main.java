@@ -72,22 +72,25 @@ public class Main implements IXposedHookLoadPackage {
             return ;
         }
 
-        Uri uri = Uri.parse("content://com.sky.xposed.load.ui.provider/package");
-        Cursor cursor = contentResolver.query(
-                uri, null, packageName, null, null);
+        Cursor cursor = null;
 
-        if (cursor != null && cursor.moveToFirst()) {
+        try {
+            Uri uri = Uri.parse("content://com.sky.xposed.load.ui.provider/package");
+            cursor = contentResolver.query(
+                    uri, null, packageName, null, null);
 
-            String data = cursor.getString(cursor.getColumnIndex("DATA"));
-            cursor.close();
+            if (cursor != null && cursor.moveToFirst()) {
 
-            List<PluginEntity> list = JSON.parseArray(data, PluginEntity.class);
+                String data = cursor.getString(cursor.getColumnIndex("DATA"));
+                List<PluginEntity> list = JSON.parseArray(data, PluginEntity.class);
 
-            for (PluginEntity entity : list) {
-
-                // 加载所有关联的插件
-                handlerLoadPackage(context, param, entity);
+                for (PluginEntity entity : list) {
+                    // 加载所有关联的插件
+                    handlerLoadPackage(context, param, entity);
+                }
             }
+        } finally {
+            if (cursor != null) cursor.close();
         }
     }
 
@@ -104,11 +107,6 @@ public class Main implements IXposedHookLoadPackage {
 
             // 加载Dex
             ClassLoader classLoader = loadClassLoader(context, plugin.getPackageName());
-
-            if (classLoader == null) {
-                XposedBridge.log("ClassLoader为空异常: " + plugin.getPackageName());
-                return ;
-            }
 
             // 加载相应类的入口，并调用
             Class mainClass = classLoader.loadClass(plugin.getMain());

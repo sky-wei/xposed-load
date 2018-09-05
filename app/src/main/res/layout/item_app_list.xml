@@ -63,6 +63,11 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
+            android:layout_marginRight="6dp"
+            android:button="@drawable/selector_item_check"
+            android:clickable="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
             />
 
     </RelativeLayout>

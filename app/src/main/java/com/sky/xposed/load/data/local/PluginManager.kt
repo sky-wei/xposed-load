@@ -271,8 +271,8 @@ class PluginManager private constructor() {
         } catch (tr: Throwable) {
             Alog.e("获取入口信息异常")
         } finally {
-            FileUtils.closeQuietly(stream)
-            FileUtils.closeQuietly(apkFile)
+            FileUtil.closeQuietly(stream)
+            FileUtil.closeQuietly(apkFile)
         }
         return ""
     }

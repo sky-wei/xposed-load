@@ -23,7 +23,7 @@ import com.sky.xposed.load.ui.util.VToast
 /**
  * Created by sky on 17-12-27.
  */
-class VApp : Application() {
+class App : Application() {
 
     override fun onCreate() {
         super.onCreate()

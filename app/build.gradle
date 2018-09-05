@@ -78,7 +78,6 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
-    implementation(name: 'library-1.0', ext: 'aar')
     implementation 'com.android.support:recyclerview-v7:26.1.0'
     implementation 'com.android.support:cardview-v7:26.1.0'
     implementation 'org.greenrobot:greendao:3.2.2'
@@ -87,5 +86,6 @@ dependencies {
     implementation 'com.tbruyelle.rxpermissions:rxpermissions:0.9.4@aar'
     implementation 'com.jakewharton:butterknife:8.8.1'
     implementation 'com.alibaba:fastjson:1.1.67.android'
+    implementation 'com.github.sky-wei:android-common:1.1.1'
     kapt 'com.jakewharton:butterknife-compiler:9.0.0-SNAPSHOT'
 }

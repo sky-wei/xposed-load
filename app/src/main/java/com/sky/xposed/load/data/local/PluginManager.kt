@@ -20,7 +20,7 @@ import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import com.sky.android.common.utils.FileUtils
+import com.sky.android.common.util.FileUtil
 import com.sky.xposed.load.Constant
 import com.sky.xposed.load.data.db.DBManager
 import com.sky.xposed.load.data.db.dao.HookEntityDao
@@ -223,8 +223,8 @@ class PluginManager private constructor() {
         } catch (tr: Throwable) {
             Alog.e("获取入口信息异常")
         } finally {
-            FileUtils.closeQuietly(stream)
-            FileUtils.closeQuietly(apkFile)
+            FileUtil.closeQuietly(stream)
+            FileUtil.closeQuietly(apkFile)
         }
         return ""
     }

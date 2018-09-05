@@ -2,9 +2,8 @@ package com.sky.xposed.load.util
 
 import android.app.ActivityManager
 import android.content.Context
-import android.os.Build
 import android.text.TextUtils
-import com.sky.android.common.utils.FileUtils
+import com.sky.android.common.util.FileUtil
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
@@ -113,8 +112,8 @@ object SystemUtil {
             Alog.e("执行命令异常", e)
             execResult.errorMsg = e.message
         } finally {
-            FileUtils.closeQuietly(errorStream)
-            FileUtils.closeQuietly(inputStream)
+            FileUtil.closeQuietly(errorStream)
+            FileUtil.closeQuietly(inputStream)
             if (process != null) process.destroy()
         }
         return execResult

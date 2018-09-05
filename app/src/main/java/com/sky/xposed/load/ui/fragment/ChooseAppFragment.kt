@@ -29,7 +29,7 @@ import android.widget.CompoundButton
 import android.widget.EditText
 import butterknife.BindView
 import com.sky.android.common.interfaces.OnItemEventListener
-import com.sky.android.common.utils.DisplayUtils
+import com.sky.android.common.util.DisplayUtil
 import com.sky.xposed.app.R
 import com.sky.xposed.load.Constant
 import com.sky.xposed.load.contract.ChooseAppContract
@@ -80,7 +80,7 @@ class ChooseAppFragment : BaseFragment(), TextWatcher, OnItemEventListener,
 
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.addItemDecoration(
-                SpacesItemDecoration(DisplayUtils.dip2px(context, 8f)))
+                SpacesItemDecoration(DisplayUtil.dip2px(context, 8f)))
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = mAppListAdapter
 

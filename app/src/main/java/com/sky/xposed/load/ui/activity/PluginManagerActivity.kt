@@ -31,7 +31,7 @@ import android.view.MenuItem
 import android.view.View
 import butterknife.BindView
 import com.sky.android.common.interfaces.OnItemEventListener
-import com.sky.android.common.utils.DisplayUtils
+import com.sky.android.common.util.DisplayUtil
 import com.sky.xposed.app.R
 import com.sky.xposed.load.Constant
 import com.sky.xposed.load.contract.PluginManagerContract
@@ -96,7 +96,7 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
 
         recyclerView.layoutManager = LinearLayoutManager(getContext())
         recyclerView.addItemDecoration(
-                SpacesItemDecoration(DisplayUtils.dip2px(getContext(), 8f)))
+                SpacesItemDecoration(DisplayUtil.dip2px(getContext(), 8f)))
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = mPluginListAdapter
 

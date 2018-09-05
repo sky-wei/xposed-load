@@ -44,7 +44,7 @@ class AppListAdapter(context: Context) : SimpleRecyclerAdapter<AppModel>(context
 
         if (select) {
             // 添加
-            selectApp.put(packageName, packageName)
+            selectApp[packageName] = packageName
             return
         }
         // 删除
@@ -87,9 +87,10 @@ class AppListAdapter(context: Context) : SimpleRecyclerAdapter<AppModel>(context
             ckSelect.isChecked = selectApp.containsKey(item.packageName)
         }
 
-        @OnClick(R.id.ck_select)
+        @OnClick(R.id.card_view)
         fun onClick(view: View) {
-            onItemEvent(Constant.EventId.SELECT, view, adapterPosition)
+            ckSelect.isChecked = !ckSelect.isChecked
+            onItemEvent(Constant.EventId.SELECT, ckSelect, adapterPosition)
         }
     }
 }

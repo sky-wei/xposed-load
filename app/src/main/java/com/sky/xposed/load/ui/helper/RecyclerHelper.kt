@@ -18,7 +18,7 @@ package com.sky.xposed.load.ui.helper
 
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.RecyclerView
-import com.sky.android.common.utils.DisplayUtils
+import com.sky.android.common.util.DisplayUtil
 
 /**
  * Created by sky on 18-1-5.
@@ -67,7 +67,7 @@ class RecyclerHelper(private val refreshLayout: SwipeRefreshLayout,
 
         // 显示加载进度
         refreshLayout.setProgressViewOffset(true, 0,
-                DisplayUtils.dip2px(refreshLayout.context, 60f))
+                DisplayUtil.dip2px(refreshLayout.context, 60f))
         refreshLayout.isRefreshing = true
     }
 

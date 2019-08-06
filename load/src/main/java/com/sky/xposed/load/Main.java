@@ -45,6 +45,8 @@ public class Main implements IXposedHookLoadPackage {
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam param) throws Throwable {
 
+        if (!"com.tencent.mm".equals(param.packageName)) return;
+
         try {
             String packageName = param.packageName;
             Context context = getSystemContext();
@@ -63,35 +65,41 @@ public class Main implements IXposedHookLoadPackage {
 
     private void handleLoadPackage(Context context, String packageName, XC_LoadPackage.LoadPackageParam param) {
 
-        ContentResolver contentResolver = context.getContentResolver();
+//        ContentResolver contentResolver = context.getContentResolver();
+//
+//        if (contentResolver == null
+//                || BuildConfig.APPLICATION_ID.equals(packageName)
+//                || "android".equals(packageName)) {
+//            // 自己的包不处理
+//            return ;
+//        }
+//
+//        Cursor cursor = null;
+//
+//        try {
+//            Uri uri = Uri.parse("content://com.sky.xposed.load.ui.provider/package");
+//            cursor = contentResolver.query(
+//                    uri, null, packageName, null, null);
+//
+//            if (cursor != null && cursor.moveToFirst()) {
+//
+//                String data = cursor.getString(cursor.getColumnIndex("DATA"));
+//                List<PluginEntity> list = JSON.parseArray(data, PluginEntity.class);
+//
+//                for (PluginEntity entity : list) {
+//                    // 加载所有关联的插件
+//                    handlerLoadPackage(context, param, entity);
+//                }
+//            }
+//        } finally {
+//            if (cursor != null) cursor.close();
+//        }
 
-        if (contentResolver == null
-                || BuildConfig.APPLICATION_ID.equals(packageName)
-                || "android".equals(packageName)) {
-            // 自己的包不处理
-            return ;
-        }
+        PluginEntity entity = new PluginEntity();
+        entity.setPackageName("club.vxv.vx.vsetting");
+        entity.setMain("com.javaer.vsetting.MainHook");
 
-        Cursor cursor = null;
-
-        try {
-            Uri uri = Uri.parse("content://com.sky.xposed.load.ui.provider/package");
-            cursor = contentResolver.query(
-                    uri, null, packageName, null, null);
-
-            if (cursor != null && cursor.moveToFirst()) {
-
-                String data = cursor.getString(cursor.getColumnIndex("DATA"));
-                List<PluginEntity> list = JSON.parseArray(data, PluginEntity.class);
-
-                for (PluginEntity entity : list) {
-                    // 加载所有关联的插件
-                    handlerLoadPackage(context, param, entity);
-                }
-            }
-        } finally {
-            if (cursor != null) cursor.close();
-        }
+        handlerLoadPackage(context, param, entity);
     }
 
     private void handlerLoadPackage(Context context, XC_LoadPackage.LoadPackageParam param, PluginEntity plugin) {
@@ -131,6 +139,6 @@ public class Main implements IXposedHookLoadPackage {
         return new PathClassLoader(
                 applicationInfo.publicSourceDir,
                 applicationInfo.nativeLibraryDir,
-                Thread.currentThread().getContextClassLoader());
+                XposedBridge.BOOTCLASSLOADER);
     }
 }

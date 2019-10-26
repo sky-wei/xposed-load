@@ -17,18 +17,12 @@
 package com.sky.xposed.load;
 
 import android.app.ActivityThread;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
-import android.database.Cursor;
-import android.net.Uri;
 import android.text.TextUtils;
 
-import com.alibaba.fastjson.JSON;
 import com.sky.xposed.load.entity.PluginEntity;
-
-import java.util.List;
 
 import dalvik.system.PathClassLoader;
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -139,6 +133,6 @@ public class Main implements IXposedHookLoadPackage {
         return new PathClassLoader(
                 applicationInfo.publicSourceDir,
                 applicationInfo.nativeLibraryDir,
-                XposedBridge.BOOTCLASSLOADER);
+                this.getClass().getClassLoader());
     }
 }

@@ -46,6 +46,7 @@ import com.sky.xposed.load.ui.helper.ReceiverHelper
 import com.sky.xposed.load.ui.helper.RecyclerHelper
 import com.sky.xposed.load.ui.service.PluginService
 import com.sky.xposed.load.ui.util.ActivityUtil
+import com.sky.xposed.load.ui.util.SystemUtil
 
 
 class PluginManagerActivity : LoadActivity(),
@@ -376,6 +377,6 @@ class PluginManagerActivity : LoadActivity(),
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
         val rootKillApp = preferences.getBoolean(Constant.Preference.ROOT_KILL_APP, false)
 
-//        model.packageNames.forEach { SystemUtil.killApp(context, it, rootKillApp) }
+        model.packageNames.forEach { SystemUtil.killApp(context, it, rootKillApp) }
     }
 }

@@ -21,12 +21,11 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.IBinder
 import android.preference.PreferenceManager
-import android.text.TextUtils
-import com.sky.android.common.util.SystemUtil
 import com.sky.xposed.load.Constant
 import com.sky.xposed.load.data.db.DBManager
 import com.sky.xposed.load.data.db.dao.PluginEntityDao
 import com.sky.xposed.load.ui.helper.ReceiverHelper
+import com.sky.xposed.load.ui.util.SystemUtil
 
 
 /**
@@ -95,6 +94,6 @@ class PluginService : Service(), ReceiverHelper.ReceiverCallback {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         val rootKillApp = preferences.getBoolean(Constant.Preference.ROOT_KILL_APP, false)
 
-//        packageNames?.forEach { SystemUtil.killApp(this, it, rootKillApp) }
+        packageNames.forEach { SystemUtil.killApp(this, it, rootKillApp) }
     }
 }

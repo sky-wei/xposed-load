@@ -16,38 +16,20 @@
 
 package com.sky.xposed.load.entity;
 
-import java.util.List;
-
 /**
  * Created by sky on 18-1-4.
  */
 public class PluginEntity {
 
-    private Long id;
     private String packageName;
     private String main;
-    private int status;
 
-    private List<String> hookPackageNames;
-
-    public PluginEntity(Long id, String packageName, String main, int status,
-                        List<String> hookPackageNames) {
-        this.id = id;
+    public PluginEntity(String packageName, String main) {
         this.packageName = packageName;
         this.main = main;
-        this.status = status;
-        this.hookPackageNames = hookPackageNames;
     }
 
     public PluginEntity() {
-    }
-
-    public Long getId() {
-        return this.id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getPackageName() {
@@ -64,21 +46,5 @@ public class PluginEntity {
 
     public void setMain(String main) {
         this.main = main;
-    }
-
-    public int getStatus() {
-        return this.status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
-    public List<String> getHookPackageNames() {
-        return this.hookPackageNames;
-    }
-
-    public void setHookPackageNames(List<String> hookPackageNames) {
-        this.hookPackageNames = hookPackageNames;
     }
 }

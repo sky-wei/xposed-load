@@ -17,17 +17,21 @@
 package com.sky.xposed.load;
 
 import android.app.ActivityThread;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
+import android.database.Cursor;
+import android.net.Uri;
 import android.text.TextUtils;
 
 import com.sky.xposed.load.entity.PluginEntity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import dalvik.system.PathClassLoader;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 /**
@@ -39,64 +43,101 @@ public class Main implements IXposedHookLoadPackage {
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam param) throws Throwable {
 
-        if (!"com.tencent.mm".equals(param.packageName)) return;
-
         try {
-            String packageName = param.packageName;
-            Context context = getSystemContext();
-
 //            XposedBridge.log(">>>> PackageName: " + packageName);
-
-            handleLoadPackage(context, packageName, param);
+            handleLoadPackage(getSystemContext(), param);
         } catch (Throwable e) {
             XposedBridge.log(e);
         }
     }
 
+    /**
+     * 获取系统的Context
+     * @return
+     */
     private Context getSystemContext() {
         return ActivityThread.currentActivityThread().getSystemContext();
     }
 
-    private void handleLoadPackage(Context context, String packageName, XC_LoadPackage.LoadPackageParam param) {
+    /**
+     * 处理加载的包
+     * @param context
+     * @param param
+     */
+    private void handleLoadPackage(
+            Context context, XC_LoadPackage.LoadPackageParam param
+    ) {
+        final String packageName = param.packageName;
 
-//        ContentResolver contentResolver = context.getContentResolver();
-//
-//        if (contentResolver == null
-//                || BuildConfig.APPLICATION_ID.equals(packageName)
-//                || "android".equals(packageName)) {
-//            // 自己的包不处理
-//            return ;
-//        }
-//
-//        Cursor cursor = null;
-//
-//        try {
-//            Uri uri = Uri.parse("content://com.sky.xposed.load.ui.provider/package");
-//            cursor = contentResolver.query(
-//                    uri, null, packageName, null, null);
-//
-//            if (cursor != null && cursor.moveToFirst()) {
-//
-//                String data = cursor.getString(cursor.getColumnIndex("DATA"));
-//                List<PluginEntity> list = JSON.parseArray(data, PluginEntity.class);
-//
-//                for (PluginEntity entity : list) {
-//                    // 加载所有关联的插件
-//                    handlerLoadPackage(context, param, entity);
-//                }
-//            }
-//        } finally {
-//            if (cursor != null) cursor.close();
-//        }
+        if (BuildConfig.APPLICATION_ID.equals(packageName)
+                || "android".equals(packageName)
+        ) {
+            // 不需要处理
+            return ;
+        }
 
-        PluginEntity entity = new PluginEntity();
-        entity.setPackageName("club.vxv.vx.vsetting");
-        entity.setMain("com.javaer.vsetting.MainHook");
+        List<PluginEntity> entities = loadPlugin(context, packageName);
 
-        handlerLoadPackage(context, param, entity);
+        if (entities == null) {
+            // 不需要处理
+            return;
+        }
+
+        for (PluginEntity entity : entities) {
+            // 加载所有关联的插件
+            handlerLoadPackage(context, param, entity);
+        }
     }
 
-    private void handlerLoadPackage(Context context, XC_LoadPackage.LoadPackageParam param, PluginEntity plugin) {
+    /**
+     * 加载插件实例
+     * @param context
+     * @param packageName
+     * @return
+     */
+    private List<PluginEntity> loadPlugin(Context context, String packageName) {
+
+        ContentResolver contentResolver = context.getContentResolver();
+
+        if (contentResolver == null) {
+            // 不需要处理
+            return null;
+        }
+
+        Cursor cursor = null;
+        List<PluginEntity> entities = new ArrayList<>();
+
+        try {
+            Uri uri = Uri.parse("content://com.sky.xposed.load/search/" + packageName);
+            cursor = contentResolver.query(
+                    uri, null, null, null, null
+            );
+
+            while (cursor != null && cursor.moveToNext()) {
+
+                int nameIndex = cursor.getColumnIndex("name");
+                int mainIndex = cursor.getColumnIndex("main");
+
+                String name = cursor.getString(nameIndex);
+                String main = cursor.getString(mainIndex);
+
+                entities.add(new PluginEntity(name, main));
+            }
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+        return entities;
+    }
+
+    /**
+     * 处理加载的包
+     * @param context
+     * @param param
+     * @param plugin
+     */
+    private void handlerLoadPackage(
+            Context context, XC_LoadPackage.LoadPackageParam param, PluginEntity plugin
+    ) {
 
         if (TextUtils.isEmpty(plugin.getPackageName())
                 || TextUtils.isEmpty(plugin.getMain())) {
@@ -108,14 +149,14 @@ public class Main implements IXposedHookLoadPackage {
 //            XposedBridge.log(">>> Loading: " + plugin.getPackageName());
 
             // 加载Dex
-            ClassLoader classLoader = loadClassLoader(context, plugin.getPackageName());
+            ClassLoader classLoader = createClassLoader(context, plugin.getPackageName());
 
-            // 加载相应类的入口，并调用
-            Class mainClass = classLoader.loadClass(plugin.getMain());
-            Object mainAny = mainClass.newInstance();
+            // 创建插件的对象
+            Class<?> mainClass = classLoader.loadClass(plugin.getMain());
+            IXposedHookLoadPackage moduleInstance = (IXposedHookLoadPackage) mainClass.newInstance();
 
             // 直接调用
-            XposedHelpers.callMethod(mainAny, "handleLoadPackage", param);
+            moduleInstance.handleLoadPackage(param);
         } catch (Throwable tr) {
             XposedBridge.log("加载" + plugin.getPackageName() + "插件异常");
             XposedBridge.log(tr);
@@ -123,16 +164,17 @@ public class Main implements IXposedHookLoadPackage {
     }
 
     /**
-     * 加载指定的包的ClassLoader并返回
+     * 创建指定的包的ClassLoader并返回
      */
-    private ClassLoader loadClassLoader(Context context, String packageName) throws Exception {
+    private ClassLoader createClassLoader(Context context, String packageName) throws Exception {
 
-        PackageInfo packageInfo = context.getPackageManager().getPackageInfo(packageName, 0);
-        ApplicationInfo applicationInfo = packageInfo.applicationInfo;
+        ApplicationInfo applicationInfo = context
+                .getPackageManager().getApplicationInfo(packageName, 0);
 
         return new PathClassLoader(
                 applicationInfo.publicSourceDir,
                 applicationInfo.nativeLibraryDir,
-                this.getClass().getClassLoader());
+                XposedBridge.BOOTCLASSLOADER
+        );
     }
 }

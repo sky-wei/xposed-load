@@ -16,31 +16,14 @@
 
 package com.sky.xposed.load.ui.base
 
-import android.content.Context
-import android.content.Intent
-import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.Toolbar
 import android.view.MenuItem
-import butterknife.ButterKnife
-import com.sky.android.cherry.base.BaseView
-import com.sky.xposed.load.ui.util.VToast
+import androidx.appcompat.widget.Toolbar
+import com.sky.android.core.activity.BaseActivity
 
 /**
  * Created by sky on 18-1-5.
  */
-abstract class BaseActivity : AppCompatActivity(), BaseView {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        // 设置
-        setContentView(getLayoutId())
-        ButterKnife.bind(this)
-
-        // 初始化
-        initView(intent)
-    }
+abstract class LoadActivity : BaseActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (android.R.id.home == item.itemId) {
@@ -54,14 +37,6 @@ abstract class BaseActivity : AppCompatActivity(), BaseView {
         return true
     }
 
-    protected abstract fun getLayoutId(): Int
-
-    protected abstract fun initView(intent: Intent)
-
-    fun getContext(): Context {
-        return this
-    }
-
     fun setSupportActionBar(toolbar: Toolbar, title: Int, homeAsUp: Boolean) {
         setSupportActionBar(toolbar, getString(title), homeAsUp)
     }
@@ -73,26 +48,22 @@ abstract class BaseActivity : AppCompatActivity(), BaseView {
         setSupportActionBar(toolbar)
 
         // 设置ActionBar
-        val actionBar = supportActionBar
+        val actionBar = supportActionBar?:return
 
-        actionBar!!.title = title
+        actionBar.title = title
         actionBar.setDisplayHomeAsUpEnabled(homeAsUp)
     }
 
-    fun findBaseFragmentById(id: Int): BaseFragment? {
+    fun findBaseFragmentById(id: Int): LoadFragment? {
 
         val fragment = supportFragmentManager.findFragmentById(id)
 
-        return if (fragment != null) fragment as BaseFragment else null
-    }
-
-    override fun showLoading() {
+        return if (fragment != null) fragment as LoadFragment else null
     }
 
     override fun cancelLoading() {
     }
 
-    override fun showMessage(msg: String) {
-        VToast.show(msg)
+    override fun showLoading() {
     }
 }

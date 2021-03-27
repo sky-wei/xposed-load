@@ -17,8 +17,10 @@
 package com.sky.xposed.load
 
 import android.app.Application
+import com.sky.android.common.util.Alog
+import com.sky.android.common.util.ToastUtil
+import com.sky.xposed.app.BuildConfig
 import com.sky.xposed.load.data.local.PluginManager
-import com.sky.xposed.load.ui.util.VToast
 
 /**
  * Created by sky on 17-12-27.
@@ -29,7 +31,12 @@ class App : Application() {
         super.onCreate()
 
         // 初始化
-        VToast.instance.init(this)
+        ToastUtil.initialize(this)
+        Alog.setSingletonInstance(
+                Alog.Builder()
+                        .setDebug(BuildConfig.DEBUG)
+                        .build()
+        )
         PluginManager.INSTANCE.initialize(this)
     }
 }

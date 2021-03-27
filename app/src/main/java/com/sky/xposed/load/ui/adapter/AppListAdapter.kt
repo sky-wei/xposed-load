@@ -20,23 +20,21 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
-import android.widget.ImageView
-import android.widget.TextView
-import butterknife.BindView
-import butterknife.ButterKnife
-import butterknife.OnClick
-import com.sky.android.common.adapter.SimpleRecyclerAdapter
-import com.sky.android.common.base.BaseRecyclerAdapter
-import com.sky.android.common.base.BaseRecyclerHolder
+import com.hi.dhl.binding.viewbind
+import com.sky.android.core.adapter.BaseRecyclerAdapter
+import com.sky.android.core.adapter.BaseRecyclerHolder
+import com.sky.android.core.adapter.SimpleRecyclerAdapter
 import com.sky.xposed.app.R
+import com.sky.xposed.app.databinding.ItemAppListBinding
 import com.sky.xposed.load.Constant
 import com.sky.xposed.load.data.model.AppModel
 
 /**
  * Created by sky on 18-1-5.
  */
-class AppListAdapter(context: Context) : SimpleRecyclerAdapter<AppModel>(context) {
+class AppListAdapter(
+        context: Context
+) : SimpleRecyclerAdapter<AppModel>(context) {
 
     var selectApp = HashMap<String, String>()
 
@@ -51,7 +49,7 @@ class AppListAdapter(context: Context) : SimpleRecyclerAdapter<AppModel>(context
         selectApp.remove(packageName)
     }
 
-    override fun onCreateView(layoutInflater: LayoutInflater, viewGroup: ViewGroup, viewType: Int): View {
+    override fun onCreateView(layoutInflater: LayoutInflater, viewGroup: ViewGroup?, viewType: Int): View {
         return layoutInflater.inflate(R.layout.item_app_list, viewGroup, false)
     }
 
@@ -62,17 +60,15 @@ class AppListAdapter(context: Context) : SimpleRecyclerAdapter<AppModel>(context
     inner class AppHolder(itemView: View, adapter: BaseRecyclerAdapter<AppModel>)
         : BaseRecyclerHolder<AppModel>(itemView, adapter) {
 
-        @BindView(R.id.iv_image)
-        lateinit var ivImage: ImageView
-        @BindView(R.id.tv_name)
-        lateinit var tvName: TextView
-        @BindView(R.id.tv_desc)
-        lateinit var tvDesc: TextView
-        @BindView(R.id.ck_select)
-        lateinit var ckSelect: CheckBox
+        private val binding: ItemAppListBinding by viewbind()
 
         override fun onInitialize() {
-            ButterKnife.bind(this, itemView)
+            super.onInitialize()
+
+            binding.cardView.setOnClickListener{
+                binding.ckSelect.isChecked = !binding.ckSelect.isChecked
+                callItemEvent(Constant.EventId.SELECT, binding.ckSelect, adapterPosition)
+            }
         }
 
         override fun onBind(position: Int, viewType: Int) {
@@ -80,17 +76,11 @@ class AppListAdapter(context: Context) : SimpleRecyclerAdapter<AppModel>(context
             val item = getItem(position)
 
             // 设置信息
-            ivImage.setImageDrawable(item.image)
-            tvName.text = item.label
-            tvDesc.text = "包名: ${item.packageName}\n版本: v" +
+            binding.ivImage.setImageDrawable(item.image)
+            binding.tvName.text = item.label
+            binding.tvDesc.text = "包名: ${item.packageName}\n版本: v" +
                     "${item.versionName}\n版本号: ${item.versionCode}"
-            ckSelect.isChecked = selectApp.containsKey(item.packageName)
-        }
-
-        @OnClick(R.id.card_view)
-        fun onClick(view: View) {
-            ckSelect.isChecked = !ckSelect.isChecked
-            onItemEvent(Constant.EventId.SELECT, ckSelect, adapterPosition)
+            binding.ckSelect.isChecked = selectApp.containsKey(item.packageName)
         }
     }
 }

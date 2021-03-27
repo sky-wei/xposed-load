@@ -22,8 +22,6 @@ import android.content.UriMatcher
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.net.Uri
-import android.text.TextUtils
-import com.alibaba.fastjson.JSON
 import com.sky.xposed.load.data.db.DBManager
 import com.sky.xposed.load.data.db.dao.HookEntityDao
 import com.sky.xposed.load.data.db.entity.PluginEntity
@@ -35,10 +33,14 @@ class PluginProvider : ContentProvider() {
 
     companion object {
 
-        val NAME = 1
+        private const val AUTHORITY: String = "com.sky.xposed.load"
+
+        private const val PACKAGE = 1
+
+        private val COLUMN_NAME: Array<String> = arrayOf("name", "main")
 
         var URI_MATCHER = UriMatcher(UriMatcher.NO_MATCH).apply {
-            addURI("com.sky.xposed.load.ui.provider","package", NAME)
+            addURI(AUTHORITY,"package/*", PACKAGE)
         }
     }
 
@@ -48,16 +50,27 @@ class PluginProvider : ContentProvider() {
         return null
     }
 
-    override fun query(uri: Uri, projection: Array<out String>?, selection: String?, selectionArgs: Array<out String>?, sortOrder: String?): Cursor? {
+    override fun query(
+            uri: Uri,
+            projection: Array<out String>?,
+            selection: String?,
+            selectionArgs: Array<out String>?,
+            sortOrder: String?
+    ): Cursor? {
 
-        if (URI_MATCHER.match(uri) == NAME && !TextUtils.isEmpty(selection)) {
+        val packageName = getPackageName(uri)?: return null
 
-            val list = getPackagePluginList(selection!!)
+        if (URI_MATCHER.match(uri) == PACKAGE) {
+
+            val list = getPackagePluginList(packageName)
 
             if (list.isEmpty()) return null
 
-            val cursor = MatrixCursor(arrayOf("DATA"))
-            cursor.newRow().add(JSON.toJSONString(list))
+            val cursor = MatrixCursor(COLUMN_NAME)
+
+            list.forEach {
+                cursor.addRow(arrayOf(it.packageName, it.main))
+            }
             return cursor
         }
         return null
@@ -86,7 +99,8 @@ class PluginProvider : ContentProvider() {
         val pluginEntityDao = dbManager.pluginEntityDao
 
         val hookEntity = hookEntityDao.queryBuilder()
-                .where(HookEntityDao.Properties.PackageName.eq(packageName)).unique()
+                .where(HookEntityDao.Properties.PackageName.eq(packageName))
+                .unique()
 
         if (hookEntity == null
                 || hookEntity.pluginIds == null
@@ -101,5 +115,14 @@ class PluginProvider : ContentProvider() {
             if (pluginEntity != null) entityList.add(pluginEntity)
         }
         return entityList
+    }
+
+    private fun getPackageName(uri: Uri): String? {
+        return if (uri.pathSegments.isNotEmpty()
+                && uri.pathSegments.size == 1) {
+            uri.pathSegments[0]
+        } else {
+            null
+        }
     }
 }

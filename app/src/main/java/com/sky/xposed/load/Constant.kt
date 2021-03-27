@@ -23,72 +23,72 @@ object Constant {
 
     object Load {
 
-        val PACKAGE_NAME = "com.sky.xposed.load"
+        const val PACKAGE_NAME = "com.sky.xposed.load"
     }
 
     object Cache {
 
         /** 内存缓存 */
-        val MEMORY = 10 * 1024 * 1024
+        const val MEMORY = 10 * 1024 * 1024
 
         /** 磁盘缓存 */
-        val DISK = 500 * 1024 * 1024
+        const val DISK = 500 * 1024 * 1024
     }
 
     object Key {
 
-        val ARGS = "args"
+        const val ARGS = "args"
 
-        val TYPE = "type"
+        const val TYPE = "type"
 
-        val MODE = "mode"
+        const val MODE = "mode"
 
-        val ACTION = "action"
+        const val ACTION = "action"
 
-        val TITLE = "title"
+        const val TITLE = "title"
 
-        val NAME = "name"
+        const val NAME = "name"
 
-        val PHONE = "phone"
+        const val PHONE = "phone"
 
-        val ANY = "any"
+        const val ANY = "any"
 
-        val ID = "id"
+        const val ID = "id"
 
-        val F_NAME = "fName"
+        const val F_NAME = "fName"
 
-        val SUPPORT_FRAGMENT = "supportFragment"
+        const val SUPPORT_FRAGMENT = "supportFragment"
     }
 
     object Status {
 
-        val DISABLED = 0x00
+        const val DISABLED = 0x00
 
-        val ENABLED = 0x01
+        const val ENABLED = 0x01
     }
 
     object EventId {
 
-        val CLICK = 0x01
+        const val CLICK = 0x01
 
-        val LONG_CLICK = 0x02
+        const val LONG_CLICK = 0x02
 
-        val SELECT = 0x03
+        const val SELECT = 0x03
     }
 
     object Filter {
 
-        val USER = 0x01
+        const val USER = 0x01
 
-        val SYSTEM = 0x02
+        const val SYSTEM = 0x02
 
-        val ALL = 0x03
+        const val ALL = 0x03
     }
 
     object Preference {
 
-        val AUTO_KILL_APP = "auto_kill_app"
+        const val AUTO_KILL_APP = "auto_kill_app"
 
-        val ROOT_KILL_APP = "root_kill_app"
+        const val ROOT_KILL_APP = "root_kill_app"
     }
 }

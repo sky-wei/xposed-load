@@ -22,17 +22,16 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.support.v4.widget.SwipeRefreshLayout
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import butterknife.BindView
-import com.sky.android.common.interfaces.OnItemEventListener
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.hi.dhl.binding.viewbind
+import com.sky.android.common.util.Alog
 import com.sky.android.common.util.DisplayUtil
+import com.sky.android.core.interfaces.OnItemEventListener
 import com.sky.xposed.app.R
+import com.sky.xposed.app.databinding.ActivityPluginManagerBinding
 import com.sky.xposed.load.Constant
 import com.sky.xposed.load.contract.PluginManagerContract
 import com.sky.xposed.load.data.local.PluginManager
@@ -40,7 +39,7 @@ import com.sky.xposed.load.data.model.PluginModel
 import com.sky.xposed.load.presenter.PluginManagerPresenter
 import com.sky.xposed.load.ui.adapter.PluginListAdapter
 import com.sky.xposed.load.ui.adapter.SpacesItemDecoration
-import com.sky.xposed.load.ui.base.BaseActivity
+import com.sky.xposed.load.ui.base.LoadActivity
 import com.sky.xposed.load.ui.diglog.ChooseDialog
 import com.sky.xposed.load.ui.fragment.AboutFragment
 import com.sky.xposed.load.ui.fragment.ChooseAppFragment
@@ -49,26 +48,20 @@ import com.sky.xposed.load.ui.helper.ReceiverHelper
 import com.sky.xposed.load.ui.helper.RecyclerHelper
 import com.sky.xposed.load.ui.service.PluginService
 import com.sky.xposed.load.ui.util.ActivityUtil
-import com.sky.xposed.load.util.Alog
-import com.sky.xposed.load.util.SystemUtil
 
 
-class PluginManagerActivity : BaseActivity(), OnItemEventListener,
-        RecyclerHelper.OnCallback, PluginManagerContract.View, ReceiverHelper.ReceiverCallback {
+class PluginManagerActivity : LoadActivity(),
+        OnItemEventListener,
+        RecyclerHelper.OnCallback,
+        PluginManagerContract.View,
+        ReceiverHelper.ReceiverCallback {
 
     companion object {
 
-        val CHOOSE_APP = 0x01
+        const val CHOOSE_APP = 0x01
 
-        val MODULE_SETTINGS = "de.robv.android.xposed.category.MODULE_SETTINGS"
+        const val MODULE_SETTINGS = "de.robv.android.xposed.category.MODULE_SETTINGS"
     }
-
-    @BindView(R.id.toolbar)
-    lateinit var toolbar: Toolbar
-    @BindView(R.id.swipe_refresh_layout)
-    lateinit var swipeRefreshLayout: SwipeRefreshLayout
-    @BindView(R.id.recycler_view)
-    lateinit var recyclerView: RecyclerView
 
     private var mCurPosition = -1
     private lateinit var mPluginListAdapter: PluginListAdapter
@@ -77,31 +70,38 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
     private var mReceiverHelper: ReceiverHelper? = null
     private lateinit var mPluginManagerPresenter: PluginManagerContract.Presenter
 
-    override fun getLayoutId(): Int {
-        return R.layout.activity_plugin_manager
-    }
+    private val binding: ActivityPluginManagerBinding by viewbind()
+
+    override val layoutId: Int
+        get() = R.layout.activity_plugin_manager
 
     override fun initView(intent: Intent) {
 
         // 设置ActionBar
-        setSupportActionBar(toolbar,
-                getString(R.string.app_name), false)
+        setSupportActionBar(
+                binding.appbarLayout.toolbar,
+                getString(R.string.app_name), false
+        )
 
         initPluginService()
 
-        swipeRefreshLayout.setColorSchemeResources(R.color.colorAccent)
+        binding.swipeRefreshLayout.setColorSchemeResources(R.color.colorAccent)
 
-        mPluginListAdapter = PluginListAdapter(getContext())
+        mPluginListAdapter = PluginListAdapter(context)
         mPluginListAdapter.onItemEventListener = this
 
-        recyclerView.layoutManager = LinearLayoutManager(getContext())
-        recyclerView.addItemDecoration(
-                SpacesItemDecoration(DisplayUtil.dip2px(getContext(), 8f)))
-        recyclerView.setHasFixedSize(true)
-        recyclerView.adapter = mPluginListAdapter
+        binding.recyclerView.layoutManager = LinearLayoutManager(context)
+        binding.recyclerView.addItemDecoration(
+                SpacesItemDecoration(DisplayUtil.dip2px(context, 8f)))
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.adapter = mPluginListAdapter
 
         // 刷新助手类
-        mRecyclerHelper = RecyclerHelper(swipeRefreshLayout, recyclerView, this)
+        mRecyclerHelper = RecyclerHelper(
+                binding.swipeRefreshLayout,
+                binding.recyclerView,
+                this
+        )
 
         mPluginManagerPresenter = PluginManagerPresenter(PluginManager.INSTANCE, this)
 
@@ -180,7 +180,7 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
         mRecyclerHelper.cancelRefreshing()
     }
 
-    override fun onItemEvent(event: Int, view: View, position: Int, vararg args: Any?) {
+    override fun onItemEvent(event: Int, view: View, position: Int, vararg args: Any?): Boolean {
 
         val vItem = mPluginListAdapter.getItem(position)
 
@@ -196,7 +196,7 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
                 val items = if (vItem.status == Constant.Status.DISABLED)
                     arrayOf("模块信息", "关联应用") else arrayOf("模块信息", "关联应用", "清除关联", "Hook应用信息", "关闭关联应用")
 
-                ChooseDialog.build(getContext()){
+                ChooseDialog.build(context){
                     stringItems { items }
                     onChooseListener { object : ChooseDialog.OnChooseListener{
                         override fun onChoose(position: Int, item: ChooseDialog.ChooseItem) {
@@ -227,6 +227,7 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
                 }.show()
             }
         }
+        return true
     }
 
     override fun onRefresh() {
@@ -290,16 +291,16 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
 
         if (list.size == 1) {
             // 进入设置
-            ActivityUtil.startAppSettingsActivity(getContext(), list[0])
+            ActivityUtil.startAppSettingsActivity(context, list[0])
             return
         }
 
-        ChooseDialog.build(getContext()){
+        ChooseDialog.build(context){
             stringItems { list.toTypedArray() }
             onChooseListener { object : ChooseDialog.OnChooseListener{
                 override fun onChoose(position: Int, item: ChooseDialog.ChooseItem) {
                     // 进入设置
-                    ActivityUtil.startAppSettingsActivity(getContext(), list[position])
+                    ActivityUtil.startAppSettingsActivity(context, list[position])
                 }
             }}
         }.show()
@@ -307,10 +308,10 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
 
     private fun initPluginService() {
 
-        val preferences = PreferenceManager.getDefaultSharedPreferences(getContext())
+        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
         val autoKill = preferences.getBoolean(Constant.Preference.AUTO_KILL_APP, false)
 
-        if (autoKill) startService(Intent(getContext(), PluginService::class.java))
+        if (autoKill) startService(Intent(context, PluginService::class.java))
     }
 
     /**
@@ -354,7 +355,7 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
                 // 进入界面
                 val activityInfo = result[0].activityInfo
 
-                return ActivityUtil.startActivity(getContext(), Intent().apply {
+                return ActivityUtil.startActivity(context, Intent().apply {
                     component = ComponentName(activityInfo.packageName, activityInfo.name)
                 })
             }
@@ -366,9 +367,9 @@ class PluginManagerActivity : BaseActivity(), OnItemEventListener,
 
     private fun closeHookPackages(model: PluginModel) {
 
-        val preferences = PreferenceManager.getDefaultSharedPreferences(getContext())
+        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
         val rootKillApp = preferences.getBoolean(Constant.Preference.ROOT_KILL_APP, false)
 
-        model.packageNames.forEach { SystemUtil.killApp(getContext(), it, rootKillApp) }
+//        model.packageNames.forEach { SystemUtil.killApp(context, it, rootKillApp) }
     }
 }

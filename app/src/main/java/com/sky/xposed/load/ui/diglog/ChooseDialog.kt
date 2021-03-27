@@ -18,26 +18,25 @@ package com.sky.xposed.load.ui.diglog
 
 import android.content.Context
 import android.content.DialogInterface
-import android.support.design.widget.BottomSheetDialog
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.View
-import butterknife.BindView
-import butterknife.ButterKnife
-import com.sky.android.common.interfaces.OnItemEventListener
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.hi.dhl.binding.viewbind
+import com.sky.android.core.interfaces.OnItemEventListener
 import com.sky.xposed.app.R
+import com.sky.xposed.app.databinding.DialogChooseBinding
 import com.sky.xposed.load.ui.adapter.ChooseAdapter
 
 /**
  * Created by sky on 18-1-8.
  */
-class ChooseDialog private constructor(context: Context, private val items: List<ChooseItem>,
-                                       private var chooseListener: OnChooseListener)
-    : BottomSheetDialog(context), OnItemEventListener {
+class ChooseDialog private constructor(
+        context: Context,
+        private val items: List<ChooseItem>,
+        private var chooseListener: OnChooseListener
+) : BottomSheetDialog(context), OnItemEventListener {
 
-    @BindView(R.id.recycle_view)
-    lateinit var recycleView: RecyclerView
-
+    private val binding: DialogChooseBinding by viewbind()
     private val mChooseAdapter: ChooseAdapter<ChooseItem>
 
     private constructor(builder: Builder)
@@ -48,24 +47,22 @@ class ChooseDialog private constructor(context: Context, private val items: List
     }
 
     init {
-        val view = layoutInflater.inflate(R.layout.dialog_choose, null)
-        ButterKnife.bind(this, view)
-
-        setContentView(view)
+        setContentView(R.layout.dialog_choose)
 
         val layoutManager = LinearLayoutManager(getContext())
-        recycleView.layoutManager = layoutManager
+        binding.recycleView.layoutManager = layoutManager
 
         mChooseAdapter = ChooseAdapter(getContext())
         mChooseAdapter.items = items
         mChooseAdapter.onItemEventListener = this
 
-        recycleView.adapter = mChooseAdapter
+        binding.recycleView.adapter = mChooseAdapter
     }
 
-    override fun onItemEvent(event: Int, view: View, position: Int, vararg args: Any) {
+    override fun onItemEvent(event: Int, view: View, position: Int, vararg args: Any): Boolean {
         this.dismiss()
         chooseListener?.onChoose(position, items[position])
+        return true
     }
 
     companion object {

@@ -20,12 +20,16 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import com.sky.xposed.load.util.Alog
+import com.sky.android.common.util.Alog
 
 /**
  * Created by sky on 18-1-9.
  */
-class ReceiverHelper(context: Context, private val mCallback: ReceiverCallback?, private val mIntentFilter: IntentFilter) {
+class ReceiverHelper(
+        context: Context,
+        private val mCallback: ReceiverCallback?,
+        private val mIntentFilter: IntentFilter
+) {
 
     private val mContext: Context = context.applicationContext
     private var mHelperBroadcastReceiver: HelperBroadcastReceiver? = null
@@ -42,7 +46,6 @@ class ReceiverHelper(context: Context, private val mCallback: ReceiverCallback?,
         } catch (e: Exception) {
             Alog.e("Exception", e)
         }
-
     }
 
     fun unregisterReceiver() {
@@ -77,7 +80,7 @@ class ReceiverHelper(context: Context, private val mCallback: ReceiverCallback?,
 
             val filter = IntentFilter()
 
-            if (actions == null || actions.isEmpty()) {
+            if (actions.isEmpty()) {
                 // 暂无
                 return filter
             }

@@ -14,32 +14,22 @@
  * limitations under the License.
  */
 
-package com.sky.xposed.load.util;
+package com.sky.xposed.load.ui.base
 
-import android.text.TextUtils;
+import android.view.KeyEvent
+import android.view.MenuItem
+import com.sky.android.core.fragment.BaseFragment
 
 /**
- * Created by sky on 2016/11/25.
+ * Created by sky on 18-1-5.
  */
+abstract class LoadFragment : BaseFragment() {
 
-public class ConversionUtils {
-
-    private static final String TAG = "ConversionUtils";
-
-    public static long parseLong(String value) {
-        return parseLong(value, 0L);
+    open fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        return false
     }
 
-    public static long parseLong(String value, long defaultValue) {
-
-        long result = defaultValue;
-
-        if (!TextUtils.isEmpty(value)) {
-            try {
-                result = Long.parseLong(value);
-            } catch (NumberFormatException e) {
-            }
-        }
-        return result;
+    open fun onTakeOverOptionsItem(item: MenuItem): Boolean {
+        return false
     }
 }

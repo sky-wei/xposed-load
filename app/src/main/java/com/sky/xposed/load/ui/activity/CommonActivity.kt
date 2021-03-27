@@ -17,31 +17,28 @@
 package com.sky.xposed.load.ui.activity
 
 import android.content.Intent
-import android.support.v4.app.Fragment
-import android.support.v7.widget.Toolbar
 import android.view.KeyEvent
 import android.view.MenuItem
-import butterknife.BindView
+import androidx.fragment.app.Fragment
+import com.hi.dhl.binding.viewbind
 import com.sky.xposed.app.R
+import com.sky.xposed.app.databinding.ActivityCommonBinding
 import com.sky.xposed.load.Constant
-import com.sky.xposed.load.ui.base.BaseActivity
-import com.sky.xposed.load.ui.base.BaseFragment
+import com.sky.xposed.load.ui.base.LoadActivity
+import com.sky.xposed.load.ui.base.LoadFragment
 
 /**
  * Created by sky on 18-1-5.
  */
-class CommonActivity : BaseActivity() {
-
-    @BindView(R.id.toolbar)
-    lateinit var toolbar: Toolbar
-
-    var mFragment: BaseFragment? = null
+class CommonActivity : LoadActivity() {
 
     private var mSupportFragment = true
+    private var mFragment: LoadFragment? = null
 
-    override fun getLayoutId(): Int {
-        return R.layout.activity_common
-    }
+    private val binding: ActivityCommonBinding by viewbind()
+
+    override val layoutId: Int
+        get() = R.layout.activity_common
 
     override fun initView(intent: Intent) {
 
@@ -52,14 +49,16 @@ class CommonActivity : BaseActivity() {
                 Constant.Key.SUPPORT_FRAGMENT, true)
 
         // 设置ActionBar
-        setSupportActionBar(toolbar, title, true)
+        setSupportActionBar(
+                binding.appbarLayout.toolbar, title, true
+        )
 
         if (mSupportFragment) {
             // SupportFragment
             val fragmentManager = supportFragmentManager
             val fragment = Fragment.instantiate(this, fName, args)
             fragmentManager.beginTransaction().replace(R.id.fl_frame, fragment).commit()
-            mFragment = fragment as? BaseFragment
+            mFragment = fragment as? LoadFragment
             return
         }
 

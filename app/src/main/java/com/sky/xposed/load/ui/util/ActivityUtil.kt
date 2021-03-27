@@ -23,10 +23,10 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.text.TextUtils
+import com.sky.android.common.util.Alog
 import com.sky.xposed.load.Constant
 import com.sky.xposed.load.ui.activity.CommonActivity
-import com.sky.xposed.load.ui.base.BaseFragment
-import com.sky.xposed.load.util.Alog
+import com.sky.xposed.load.ui.base.LoadFragment
 
 /**
  * Created by sky on 18-1-7.
@@ -75,12 +75,12 @@ object ActivityUtil {
     }
 
     fun startCommonActivity(context: Context, title: String,
-                            fClass: Class<out BaseFragment>): Boolean {
+                            fClass: Class<out LoadFragment>): Boolean {
         return startCommonActivity(context, title, fClass.name, true, null)
     }
 
     fun startCommonActivity(context: Context, title: String,
-                            fClass: Class<out BaseFragment>, args: Bundle?): Boolean {
+                            fClass: Class<out LoadFragment>, args: Bundle?): Boolean {
         return startCommonActivity(context, title, fClass.name, true, args)
     }
 
@@ -98,12 +98,12 @@ object ActivityUtil {
     }
 
     fun startCommonActivityForResult(activity: Activity, title: String,
-                                     fClass: Class<out BaseFragment>, requestCode: Int): Boolean {
+                                     fClass: Class<out LoadFragment>, requestCode: Int): Boolean {
         return startCommonActivityForResult(activity, title, fClass.name, true, null, requestCode)
     }
 
     fun startCommonActivityForResult(activity: Activity, title: String,
-                                     fClass: Class<out BaseFragment>, args: Bundle?, requestCode: Int): Boolean {
+                                     fClass: Class<out LoadFragment>, args: Bundle?, requestCode: Int): Boolean {
         return startCommonActivityForResult(activity, title, fClass.name, true, args, requestCode)
     }
 

@@ -17,7 +17,7 @@
 package com.sky.xposed.load.ui.adapter;
 
 import android.graphics.Rect;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 
 public class SpacesItemDecoration extends RecyclerView.ItemDecoration {

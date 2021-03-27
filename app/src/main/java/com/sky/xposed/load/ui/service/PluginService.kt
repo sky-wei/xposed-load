@@ -22,11 +22,11 @@ import android.content.IntentFilter
 import android.os.IBinder
 import android.preference.PreferenceManager
 import android.text.TextUtils
+import com.sky.android.common.util.SystemUtil
 import com.sky.xposed.load.Constant
 import com.sky.xposed.load.data.db.DBManager
 import com.sky.xposed.load.data.db.dao.PluginEntityDao
 import com.sky.xposed.load.ui.helper.ReceiverHelper
-import com.sky.xposed.load.util.SystemUtil
 
 
 /**
@@ -67,14 +67,14 @@ class PluginService : Service(), ReceiverHelper.ReceiverCallback {
                 || Intent.ACTION_PACKAGE_REMOVED == action
                 || Intent.ACTION_PACKAGE_REPLACED == action) {
 
+            val packageName = intent.data?.schemeSpecificPart?:return
+
             // 获取安装的包名
-            onHandlerPackage(intent.data.schemeSpecificPart)
+            onHandlerPackage(packageName)
         }
     }
 
     private fun onHandlerPackage(packageName: String) {
-
-        if (TextUtils.isEmpty(packageName)) return
 
         // 获取存在的插件信息
         val pluginEntityDao = DBManager.getInstance(this).pluginEntityDao
@@ -90,11 +90,11 @@ class PluginService : Service(), ReceiverHelper.ReceiverCallback {
         }
     }
 
-    private fun killHookPackages(packageNames: List<String>?) {
+    private fun killHookPackages(packageNames: List<String>) {
 
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         val rootKillApp = preferences.getBoolean(Constant.Preference.ROOT_KILL_APP, false)
 
-        packageNames?.forEach { SystemUtil.killApp(this, it, rootKillApp) }
+//        packageNames?.forEach { SystemUtil.killApp(this, it, rootKillApp) }
     }
 }

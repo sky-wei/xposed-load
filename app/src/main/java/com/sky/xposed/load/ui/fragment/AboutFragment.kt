@@ -19,42 +19,36 @@ package com.sky.xposed.load.ui.fragment
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.TextView
-import butterknife.BindView
-import butterknife.OnClick
+import com.hi.dhl.binding.viewbind
 import com.sky.xposed.app.BuildConfig
 import com.sky.xposed.app.R
-import com.sky.xposed.load.ui.base.BaseFragment
+import com.sky.xposed.app.databinding.FragmentAboutBinding
+import com.sky.xposed.load.ui.base.LoadFragment
 import com.sky.xposed.load.ui.util.ActivityUtil
 
 /**
  * Created by sky on 18-1-7.
  */
-class AboutFragment : BaseFragment() {
+class AboutFragment : LoadFragment() {
 
-    @BindView(R.id.tv_version)
-    lateinit var tvVersion: TextView
+    private val binding: FragmentAboutBinding by viewbind()
 
-    override fun createView(inflater: LayoutInflater, container: ViewGroup?): View {
-        return inflater.inflate(R.layout.fragment_about, container, false)
-    }
+    override val layoutId: Int
+        get() = R.layout.fragment_about
 
     override fun initView(view: View, args: Bundle?) {
 
         // 设置版本名称
-        tvVersion.text = getString(
+        binding.tvVersion.text = getString(
                 R.string.version_x, BuildConfig.VERSION_NAME)
-    }
 
-    @OnClick(R.id.tv_source)
-    fun onClick(view: View) {
+        binding.tvSource.setOnClickListener {
 
-        val uri = Uri.parse("https://github.com/jingcai-wei/xposed-load")
-        val intent = Intent(Intent.ACTION_VIEW, uri)
+            val uri = Uri.parse("https://github.com/jingcai-wei/xposed-load")
+            val intent = Intent(Intent.ACTION_VIEW, uri)
 
-        ActivityUtil.startActivity(context, intent)
+            ActivityUtil.startActivity(context, intent)
+        }
     }
 }

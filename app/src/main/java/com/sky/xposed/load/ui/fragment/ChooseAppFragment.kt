@@ -19,18 +19,19 @@ package com.sky.xposed.load.ui.fragment
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.widget.SwipeRefreshLayout
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import android.widget.CompoundButton
-import android.widget.EditText
-import butterknife.BindView
-import com.sky.android.common.interfaces.OnItemEventListener
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.hi.dhl.binding.viewbind
 import com.sky.android.common.util.DisplayUtil
+import com.sky.android.core.interfaces.OnItemEventListener
 import com.sky.xposed.app.R
+import com.sky.xposed.app.databinding.FragmentChooseAppBinding
 import com.sky.xposed.load.Constant
 import com.sky.xposed.load.contract.ChooseAppContract
 import com.sky.xposed.load.data.local.PluginManager
@@ -38,7 +39,7 @@ import com.sky.xposed.load.data.model.AppModel
 import com.sky.xposed.load.presenter.ChooseAppPresenter
 import com.sky.xposed.load.ui.adapter.AppListAdapter
 import com.sky.xposed.load.ui.adapter.SpacesItemDecoration
-import com.sky.xposed.load.ui.base.BaseFragment
+import com.sky.xposed.load.ui.base.LoadFragment
 import com.sky.xposed.load.ui.diglog.ChooseDialog
 import com.sky.xposed.load.ui.helper.RecyclerHelper
 import java.io.Serializable
@@ -46,46 +47,44 @@ import java.io.Serializable
 /**
  * Created by sky on 18-1-7.
  */
-class ChooseAppFragment : BaseFragment(), TextWatcher, OnItemEventListener,
+class ChooseAppFragment : LoadFragment(), TextWatcher, OnItemEventListener,
         ChooseAppContract.View, RecyclerHelper.OnCallback {
-
-    @BindView(R.id.et_search)
-    lateinit var etSearch: EditText
-    @BindView(R.id.swipe_refresh_layout)
-    lateinit var swipeRefreshLayout: SwipeRefreshLayout
-    @BindView(R.id.recycler_view)
-    lateinit var recyclerView: RecyclerView
 
     private lateinit var mAppListAdapter: AppListAdapter
     private lateinit var mRecyclerHelper: RecyclerHelper
     private var mSelectPackage: ArrayList<String>? = null
 
-    lateinit var mChooseAppPresenter: ChooseAppContract.Presenter
+    private lateinit var mChooseAppPresenter: ChooseAppContract.Presenter
 
-    override fun createView(inflater: LayoutInflater, container: ViewGroup?): View {
-        return inflater.inflate(R.layout.fragment_choose_app, container, false)
-    }
+    private val binding: FragmentChooseAppBinding by viewbind()
+
+    override val layoutId: Int
+        get() = R.layout.fragment_choose_app
 
     override fun initView(view: View, args: Bundle?) {
 
         mSelectPackage = args?.getSerializable(Constant.Key.ANY) as? ArrayList<String>
 
         setHasOptionsMenu(true)
-        etSearch.addTextChangedListener(this)
+        binding.etSearch.addTextChangedListener(this)
 
-        swipeRefreshLayout.setColorSchemeResources(R.color.colorAccent)
+        binding.swipeRefreshLayout.setColorSchemeResources(R.color.colorAccent)
 
         mAppListAdapter = AppListAdapter(context)
         mAppListAdapter.onItemEventListener = this
 
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.addItemDecoration(
+        binding.recyclerView.layoutManager = LinearLayoutManager(context)
+        binding.recyclerView.addItemDecoration(
                 SpacesItemDecoration(DisplayUtil.dip2px(context, 8f)))
-        recyclerView.setHasFixedSize(true)
-        recyclerView.adapter = mAppListAdapter
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.adapter = mAppListAdapter
 
         // 刷新助手类
-        mRecyclerHelper = RecyclerHelper(swipeRefreshLayout, recyclerView, this)
+        mRecyclerHelper = RecyclerHelper(
+                binding.swipeRefreshLayout,
+                binding.recyclerView,
+                this
+        )
 
         mChooseAppPresenter = ChooseAppPresenter(PluginManager.INSTANCE, this)
 
@@ -113,7 +112,7 @@ class ChooseAppFragment : BaseFragment(), TextWatcher, OnItemEventListener,
                                 1 -> { mChooseAppPresenter.setFilter(Constant.Filter.SYSTEM) }
                                 2 -> { mChooseAppPresenter.setFilter(Constant.Filter.ALL) }
                             }
-                            etSearch.setText("")
+                            binding.etSearch.setText("")
                             mRecyclerHelper.forceRefreshing()
                             mChooseAppPresenter.loadApps()
                         }
@@ -126,8 +125,8 @@ class ChooseAppFragment : BaseFragment(), TextWatcher, OnItemEventListener,
                 val dataIntent = Intent().apply {
                     putExtra(Constant.Key.ANY, packageNames as Serializable)
                 }
-                activity.setResult(Activity.RESULT_OK, dataIntent)
-                activity.onBackPressed()
+                activity?.setResult(Activity.RESULT_OK, dataIntent)
+                activity?.onBackPressed()
             }
         }
         return true
@@ -166,7 +165,7 @@ class ChooseAppFragment : BaseFragment(), TextWatcher, OnItemEventListener,
     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
     }
 
-    override fun onItemEvent(event: Int, view: View, position: Int, vararg args: Any?) {
+    override fun onItemEvent(event: Int, view: View, position: Int, vararg args: Any?): Boolean {
 
         when(event) {
             Constant.EventId.SELECT -> {
@@ -178,6 +177,7 @@ class ChooseAppFragment : BaseFragment(), TextWatcher, OnItemEventListener,
                 mAppListAdapter.selectApp(item.packageName, tView.isChecked)
             }
         }
+        return true
     }
 
     override fun showLoading() {
@@ -188,7 +188,7 @@ class ChooseAppFragment : BaseFragment(), TextWatcher, OnItemEventListener,
     }
 
     override fun onRefresh() {
-        etSearch.setText("")
+        binding.etSearch.setText("")
         mChooseAppPresenter.loadApps()
     }
 

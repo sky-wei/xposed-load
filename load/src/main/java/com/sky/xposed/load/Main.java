@@ -108,7 +108,7 @@ public class Main implements IXposedHookLoadPackage {
         List<PluginEntity> entities = new ArrayList<>();
 
         try {
-            Uri uri = Uri.parse("content://com.sky.xposed.load/search/" + packageName);
+            Uri uri = Uri.parse("content://com.sky.xposed.load/package/" + packageName);
             cursor = contentResolver.query(
                     uri, null, null, null, null
             );

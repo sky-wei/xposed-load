@@ -23,8 +23,10 @@ import com.sky.xposed.load.data.model.PluginModel
 /**
  * Created by sky on 18-1-5.
  */
-class PluginManagerPresenter(private val pluginManager: PluginManager, private val view: PluginManagerContract.View)
-    : AbstractPresenter(), PluginManagerContract.Presenter {
+class PluginManagerPresenter(
+        private val pluginManager: PluginManager,
+        private val view: PluginManagerContract.View
+) : AbstractPresenter(), PluginManagerContract.Presenter {
 
     override fun loadPlugins() {
 

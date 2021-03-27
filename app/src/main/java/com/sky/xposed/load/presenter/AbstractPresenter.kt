@@ -16,28 +16,35 @@
 
 package com.sky.xposed.load.presenter
 
-import com.sky.android.cherry.base.BasePresenter
+import androidx.lifecycle.LifecycleOwner
+import com.sky.android.common.util.Alog
+import com.sky.android.core.interfaces.IBasePresenter
 import com.sky.xposed.load.data.local.PluginManager
-import com.sky.xposed.load.util.Alog
-import rx.Observable
-import rx.android.schedulers.AndroidSchedulers
-import rx.schedulers.Schedulers
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.schedulers.Schedulers
 
 /**
  * Created by sky on 18-1-5.
  */
-abstract class AbstractPresenter : BasePresenter {
+abstract class AbstractPresenter : IBasePresenter {
 
-    override fun resume() {
-
+    override fun onCreate(owner: LifecycleOwner) {
     }
 
-    override fun pause() {
-
+    override fun onDestroy(owner: LifecycleOwner) {
     }
 
-    override fun destroy() {
+    override fun onPause(owner: LifecycleOwner) {
+    }
 
+    override fun onResume(owner: LifecycleOwner) {
+    }
+
+    override fun onStart(owner: LifecycleOwner) {
+    }
+
+    override fun onStop(owner: LifecycleOwner) {
     }
 
     fun <T> ioToMain(observable: Observable<T>): Observable<T> {
@@ -48,11 +55,11 @@ abstract class AbstractPresenter : BasePresenter {
 
     fun <T> onUnsafeCreate(next: () -> T): Observable<T> {
 
-        return Observable.unsafeCreate<T> {
+        return Observable.unsafeCreate {
 
             try {
                 it.onNext(next.invoke())
-                it.onCompleted()
+                it.onComplete()
             } catch (tr: Throwable) {
                 Alog.e(PluginManager.TAG, "处理异常", tr)
                 it.onError(tr)

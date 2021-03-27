@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.sky.android.cherry.base
+package com.sky.xposed.load.base
 
 import android.content.Intent
 import android.text.TextUtils

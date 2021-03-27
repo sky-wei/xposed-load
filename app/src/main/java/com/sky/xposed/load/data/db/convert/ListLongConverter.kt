@@ -17,9 +17,8 @@
 package com.sky.xposed.load.data.db.convert
 
 import android.text.TextUtils
-import com.sky.xposed.load.util.ConversionUtils
+import com.sky.android.common.util.ConversionUtil
 import org.greenrobot.greendao.converter.PropertyConverter
-import java.util.*
 
 /**
  * Created by sky on 18-1-4.
@@ -35,7 +34,7 @@ class ListLongConverter : PropertyConverter<List<Long>, String> {
 
         val values = databaseValue.split(",")
 
-        return values.map { ConversionUtils.parseLong(it) }
+        return values.map { ConversionUtil.parseLong(it) }
     }
 
     override fun convertToDatabaseValue(entityProperty: List<Long>?): String? {

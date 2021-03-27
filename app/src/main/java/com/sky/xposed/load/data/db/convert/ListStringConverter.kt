@@ -17,7 +17,6 @@
 package com.sky.xposed.load.data.db.convert
 
 import android.text.TextUtils
-import com.sky.xposed.load.util.ConversionUtils
 import org.greenrobot.greendao.converter.PropertyConverter
 
 /**

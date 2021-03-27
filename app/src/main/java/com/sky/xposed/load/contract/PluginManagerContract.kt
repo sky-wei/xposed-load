@@ -16,8 +16,8 @@
 
 package com.sky.xposed.load.contract
 
-import com.sky.android.cherry.base.BasePresenter
-import com.sky.android.cherry.base.BaseView
+import com.sky.android.core.interfaces.IBasePresenter
+import com.sky.android.core.interfaces.IBaseView
 import com.sky.xposed.load.data.model.PluginModel
 
 /**
@@ -25,7 +25,7 @@ import com.sky.xposed.load.data.model.PluginModel
  */
 interface PluginManagerContract {
 
-    interface View : BaseView {
+    interface View : IBaseView {
 
         fun onLoadPlugins(models: List<PluginModel>)
 
@@ -36,7 +36,7 @@ interface PluginManagerContract {
         fun onUpdatePluginFailed(msg: String)
     }
 
-    interface Presenter : BasePresenter {
+    interface Presenter : IBasePresenter {
 
         fun loadPlugins()
 

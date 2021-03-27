@@ -20,21 +20,21 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import butterknife.BindView
-import butterknife.ButterKnife
-import butterknife.OnClick
-import com.sky.android.common.base.BaseRecyclerAdapter
-import com.sky.android.common.base.BaseRecyclerHolder
+import com.hi.dhl.binding.viewbind
+import com.sky.android.core.adapter.BaseRecyclerAdapter
+import com.sky.android.core.adapter.BaseRecyclerHolder
 import com.sky.xposed.app.R
+import com.sky.xposed.app.databinding.ItemChooseBinding
 import com.sky.xposed.load.ui.diglog.ChooseDialog
 
 /**
  * Created by sky on 18-1-8.
  */
-class ChooseAdapter<T : ChooseDialog.ChooseItem>(context: Context) : BaseRecyclerAdapter<T>(context) {
+class ChooseAdapter<T : ChooseDialog.ChooseItem>(
+        context: Context
+) : BaseRecyclerAdapter<T>(context) {
 
-    override fun onCreateView(layoutInflater: LayoutInflater, viewGroup: ViewGroup, viewType: Int): View {
+    override fun onCreateView(layoutInflater: LayoutInflater, viewGroup: ViewGroup?, viewType: Int): View {
         return layoutInflater.inflate(R.layout.item_choose, viewGroup, false)
     }
 
@@ -42,14 +42,18 @@ class ChooseAdapter<T : ChooseDialog.ChooseItem>(context: Context) : BaseRecycle
         return ChooseHolder(itemView, this)
     }
 
-    inner class ChooseHolder<T : ChooseDialog.ChooseItem>(itemView: View, baseRecyclerAdapter: BaseRecyclerAdapter<T>)
-        : BaseRecyclerHolder<T>(itemView, baseRecyclerAdapter) {
+    inner class ChooseHolder<T : ChooseDialog.ChooseItem>(
+            itemView: View, baseRecyclerAdapter: BaseRecyclerAdapter<T>
+    ) : BaseRecyclerHolder<T>(itemView, baseRecyclerAdapter) {
 
-        @BindView(R.id.tv_name)
-        lateinit var tvName: TextView
+        private val binding: ItemChooseBinding by viewbind()
 
         override fun onInitialize() {
-            ButterKnife.bind(this, itemView)
+
+            binding.rlItem.setOnClickListener{
+                // 回调事件
+                callItemEvent(0, it, adapterPosition)
+            }
         }
 
         override fun onBind(position: Int, viewType: Int) {
@@ -57,13 +61,7 @@ class ChooseAdapter<T : ChooseDialog.ChooseItem>(context: Context) : BaseRecycle
             val item = getItem(position)
 
             // 设置名称
-            tvName.text = item.getName()
-        }
-
-        @OnClick(R.id.rl_item)
-        fun onClick(view: View) {
-            // 回调事件
-            onItemEvent(0, view, adapterPosition)
+            binding.tvName.text = item.getName()
         }
     }
 }

@@ -20,25 +20,23 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
-import butterknife.BindView
-import butterknife.ButterKnife
-import butterknife.OnClick
-import butterknife.OnLongClick
-import com.sky.android.common.adapter.SimpleRecyclerAdapter
-import com.sky.android.common.base.BaseRecyclerAdapter
-import com.sky.android.common.base.BaseRecyclerHolder
+import com.hi.dhl.binding.viewbind
+import com.sky.android.core.adapter.BaseRecyclerAdapter
+import com.sky.android.core.adapter.BaseRecyclerHolder
+import com.sky.android.core.adapter.SimpleRecyclerAdapter
 import com.sky.xposed.app.R
+import com.sky.xposed.app.databinding.ItemPluginListBinding
 import com.sky.xposed.load.Constant
 import com.sky.xposed.load.data.model.PluginModel
 
 /**
  * Created by sky on 18-1-5.
  */
-class PluginListAdapter(context: Context) : SimpleRecyclerAdapter<PluginModel>(context) {
+class PluginListAdapter(
+        context: Context
+) : SimpleRecyclerAdapter<PluginModel>(context) {
 
-    override fun onCreateView(layoutInflater: LayoutInflater, viewGroup: ViewGroup, viewType: Int): View {
+    override fun onCreateView(layoutInflater: LayoutInflater, viewGroup: ViewGroup?, viewType: Int): View {
         return layoutInflater.inflate(R.layout.item_plugin_list, viewGroup, false)
     }
 
@@ -49,15 +47,20 @@ class PluginListAdapter(context: Context) : SimpleRecyclerAdapter<PluginModel>(c
     inner class PluginHolder(itemView: View, adapter: BaseRecyclerAdapter<PluginModel>)
         : BaseRecyclerHolder<PluginModel>(itemView, adapter) {
 
-        @BindView(R.id.iv_image)
-        lateinit var ivImage: ImageView
-        @BindView(R.id.tv_name)
-        lateinit var tvName: TextView
-        @BindView(R.id.tv_desc)
-        lateinit var tvDesc: TextView
+        private val binding: ItemPluginListBinding by viewbind()
 
         override fun onInitialize() {
-            ButterKnife.bind(this, itemView)
+
+            binding.cardView.setOnClickListener {
+                callItemEvent(Constant.EventId.CLICK, it, adapterPosition)
+            }
+            binding.ivMore.setOnClickListener {
+                callItemEvent(Constant.EventId.LONG_CLICK, it, adapterPosition)
+            }
+
+            binding.cardView.setOnLongClickListener {
+                callItemEvent(Constant.EventId.LONG_CLICK, it, adapterPosition)
+            }
         }
 
         override fun onBind(position: Int, viewType: Int) {
@@ -65,28 +68,10 @@ class PluginListAdapter(context: Context) : SimpleRecyclerAdapter<PluginModel>(c
             val item = getItem(position)
 
             // 设置信息
-            ivImage.setImageDrawable(item.base.image)
-            tvName.text = item.base.label
-            tvDesc.text = "包名: ${item.base.packageName}\n版本: v" +
+            binding.ivImage.setImageDrawable(item.base.image)
+            binding.tvName.text = item.base.label
+            binding.tvDesc.text = "包名: ${item.base.packageName}\n版本: v" +
                     "${item.base.versionName}\nHook: ${item.packageNames}"
-        }
-
-        @OnClick(R.id.card_view, R.id.iv_more)
-        fun onClick(view: View) {
-            when(view.id) {
-                R.id.card_view -> {
-                    onItemEvent(Constant.EventId.CLICK, view, adapterPosition)
-                }
-                R.id.iv_more -> {
-                    onItemEvent(Constant.EventId.LONG_CLICK, view, adapterPosition)
-                }
-            }
-        }
-
-        @OnLongClick(R.id.card_view)
-        fun onLongClick(view: View): Boolean {
-            onItemEvent(Constant.EventId.LONG_CLICK, view, adapterPosition)
-            return true
         }
     }
 }

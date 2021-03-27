@@ -21,13 +21,15 @@ import com.sky.xposed.load.Constant
 import com.sky.xposed.load.contract.ChooseAppContract
 import com.sky.xposed.load.data.local.PluginManager
 import com.sky.xposed.load.data.model.AppModel
-import rx.Observable
+import io.reactivex.rxjava3.core.Observable
 
 /**
  * Created by sky on 18-1-5.
  */
-class ChooseAppPresenter(private val pluginManager: PluginManager, private val view: ChooseAppContract.View)
-    : AbstractPresenter(), ChooseAppContract.Presenter {
+class ChooseAppPresenter(
+        private val pluginManager: PluginManager,
+        private val view: ChooseAppContract.View
+) : AbstractPresenter(), ChooseAppContract.Presenter {
 
     var mFilter = Constant.Filter.USER
     var mAppList = ArrayList<AppModel>()

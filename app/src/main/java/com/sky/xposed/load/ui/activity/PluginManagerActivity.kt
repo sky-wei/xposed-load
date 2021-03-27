@@ -17,9 +17,7 @@
 package com.sky.xposed.load.ui.activity
 
 import android.app.Activity
-import android.content.ComponentName
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.view.Menu
@@ -196,34 +194,42 @@ class PluginManagerActivity : LoadActivity(),
                 val items = if (vItem.status == Constant.Status.DISABLED)
                     arrayOf("模块信息", "关联应用") else arrayOf("模块信息", "关联应用", "清除关联", "Hook应用信息", "关闭关联应用")
 
-                ChooseDialog.build(context){
+                ChooseDialog.build(context) {
                     stringItems { items }
-                    onChooseListener { object : ChooseDialog.OnChooseListener{
-                        override fun onChoose(position: Int, item: ChooseDialog.ChooseItem) {
-                            when(position) {
-                                0 -> { showChooseAppDialog(listOf(vItem.base.packageName)) }
-                                1 -> {
-                                    // 选择，需要跳转到
-                                    val args = Bundle().apply {
-                                        putSerializable(Constant.Key.ANY, ArrayList<String>(vItem.packageNames))
+                    onChooseListener {
+                        object : ChooseDialog.OnChooseListener {
+                            override fun onChoose(position: Int, item: ChooseDialog.ChooseItem) {
+                                when (position) {
+                                    0 -> {
+                                        showChooseAppDialog(listOf(vItem.base.packageName))
                                     }
-                                    ActivityUtil.startCommonActivityForResult(this@PluginManagerActivity,
-                                            getString(R.string.choose_app), ChooseAppFragment::class.java, args, CHOOSE_APP)
-                                }
-                                2 -> {
-                                    // 关闭关联应用
-                                    closeHookPackages(vItem)
+                                    1 -> {
+                                        // 选择，需要跳转到
+                                        val args = Bundle().apply {
+                                            putSerializable(Constant.Key.ANY, ArrayList<String>(vItem.packageNames))
+                                        }
+                                        ActivityUtil.startCommonActivityForResult(this@PluginManagerActivity,
+                                                getString(R.string.choose_app), ChooseAppFragment::class.java, args, CHOOSE_APP)
+                                    }
+                                    2 -> {
+                                        // 关闭关联应用
+                                        closeHookPackages(vItem)
 
-                                    // 更新状态
-                                    mPluginManagerPresenter.updatePlugin(
-                                            vItem, listOf(), Constant.Status.DISABLED)
-                                    mPluginListAdapter.notifyDataSetChanged()
+                                        // 更新状态
+                                        mPluginManagerPresenter.updatePlugin(
+                                                vItem, listOf(), Constant.Status.DISABLED)
+                                        mPluginListAdapter.notifyDataSetChanged()
+                                    }
+                                    3 -> {
+                                        showChooseAppDialog(vItem.packageNames)
+                                    }
+                                    4 -> {
+                                        closeHookPackages(vItem)
+                                    }
                                 }
-                                3 -> { showChooseAppDialog(vItem.packageNames) }
-                                4 -> { closeHookPackages(vItem) }
                             }
                         }
-                    }}
+                    }
                 }.show()
             }
         }

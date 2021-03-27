@@ -119,8 +119,8 @@ class PluginProvider : ContentProvider() {
 
     private fun getPackageName(uri: Uri): String? {
         return if (uri.pathSegments.isNotEmpty()
-                && uri.pathSegments.size == 1) {
-            uri.pathSegments[0]
+                && uri.pathSegments.size >= 2) {
+            uri.pathSegments[1]
         } else {
             null
         }

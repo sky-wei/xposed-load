@@ -42,6 +42,7 @@
         <provider
             android:authorities="com.sky.xposed.load"
             android:name="com.sky.xposed.load.ui.provider.PluginProvider"
+            android:process=":load"
             android:exported="true"/>
 
         <activity android:name="com.sky.xposed.load.ui.activity.CommonActivity"

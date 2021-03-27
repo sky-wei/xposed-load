@@ -47,6 +47,7 @@ public class Main implements IXposedHookLoadPackage {
 //            XposedBridge.log(">>>> PackageName: " + packageName);
             handleLoadPackage(getSystemContext(), param);
         } catch (Throwable e) {
+            XposedBridge.log(">> error " + param.packageName);
             XposedBridge.log(e);
         }
     }
@@ -68,9 +69,12 @@ public class Main implements IXposedHookLoadPackage {
             Context context, XC_LoadPackage.LoadPackageParam param
     ) {
         final String packageName = param.packageName;
+        final ApplicationInfo info = param.appInfo;
 
         if (BuildConfig.APPLICATION_ID.equals(packageName)
-                || "android".equals(packageName)
+                || "com.sky.xposed.app".equals(packageName)
+                || info == null
+                || (info.flags & ApplicationInfo.FLAG_SYSTEM) != 0
         ) {
             // 不需要处理
             return ;

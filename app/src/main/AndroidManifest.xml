@@ -37,7 +37,10 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.sky.xposed.load.ui.service.PluginService" />
+        <service
+            android:name="com.sky.xposed.load.ui.service.PluginService"
+            android:process=":load"
+            />
 
         <provider
             android:authorities="com.sky.xposed.load"
